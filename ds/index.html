@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://pyscript.net/alpha/pyscript.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        canvas {
+            max-height: 250px;
+        }
+        #insights {
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-green-700 text-center my-6">Crop Yield Explorer</h1>
+
+        <!-- Dataset Section -->
+        <section id="dataset">
+            <h2 class="text-2xl font-semibold mb-4">Dataset Visualizations</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="card">
+                    <h3 class="text-lg font-medium">Rainfall Density</h3>
+                    <canvas id="rainfallViolin"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-medium">Pesticides Area</h3>
+                    <canvas id="pesticidesArea"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-medium">Temperature Density</h3>
+                    <canvas id="temperatureKDE"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-medium">Yield Histogram</h3>
+                    <canvas id="yieldHistogram"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-medium">Region-Crop Heatmap</h3>
+                    <canvas id="regionCropHeatmap"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-medium">Rainfall vs Year</h3>
+                    <canvas id="rainfallVsYearLine"></canvas>
+                </div>
+            </div>
+            <div class="mt-4">
+                <input type="file" id="csvFile" accept=".csv" class="mb-2">
+                <button id="loadDataBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Load Dataset</button>
+                <p class="text-sm mt-2"><a href="sample_data.csv" download class="text-blue-600">Download sample_data.csv</a></p>
+            </div>
+        </section>
+
+        <!-- Predictions Section -->
+        <section id="predictions" class="mt-8">
+            <h2 class="text-2xl font-semibold mb-4">Yield Predictions</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="card">
+                    <h3 class="text-lg font-medium">Actual vs Predicted</h3>
+                    <canvas id="actualVsPredictedViolin"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-medium">Residuals</h3>
+                    <canvas id="residualBoxPlot"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-medium">Error Density</h3>
+                    <canvas id="errorKDE"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-medium">Predicted vs Actual</h3>
+                    <canvas id="predictedVsActualLine"></canvas>
+                </div>
+            </div>
+            <div class="mt-4">
+                <input type="file" id="predCsvFile" accept=".csv" class="mb-2">
+                <button id="loadPredDataBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Load Predictions</button>
+                <p class="text-sm mt-2"><a href="predictions_for_powerbi.csv" download class="text-blue-600">Download predictions.csv</a></p>
+            </div>
+            <div id="insights" class="card mt-4"></div>
+        </section>
+    </div>
+
+    <footer class="bg-gray-800 text-white text-center py-2 mt-8">
+        <p>© 2025 | Updated: 03:47 PM IST, July 14, 2025</p>
+    </footer>
+
+    <script>
+        let charts = {};
+        function initializeCharts() {
+            charts = {
+                rainfallViolin: new Chart(document.getElementById('rainfallViolin'), { type: 'bar', data: { labels: [500, 1000, 1500], datasets: [{ label: 'Rainfall Density', data: [0.2, 0.5, 0.3], backgroundColor: '#4a90e2' }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Density' } } } } }),
+                pesticidesArea: new Chart(document.getElementById('pesticidesArea'), { type: 'line', data: { labels: [0, 1, 2], datasets: [{ label: 'Pesticides Area', data: [800, 2000, 2900], fill: true, backgroundColor: 'rgba(246, 194, 62, 0.5)' }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Pesticides (Tonnes)' } } } } }),
+                temperatureKDE: new Chart(document.getElementById('temperatureKDE'), { type: 'line', data: { labels: [15, 20, 25], datasets: [{ label: 'Temperature Density', data: [0.3, 0.5, 0.2], borderColor: '#e74a3b', fill: false }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Density' } } } } }),
+                yieldHistogram: new Chart(document.getElementById('yieldHistogram'), { type: 'bar', data: { labels: ['0-5', '5-10', '10-15'], datasets: [{ label: 'Yield Count', data: [2, 3, 1], backgroundColor: '#2ecc71' }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Count' } } } } }),
+                regionCropHeatmap: new Chart(document.getElementById('regionCropHeatmap'), { type: 'bar', data: { labels: ['Region1-Crop1', 'Region2-Crop2'], datasets: [{ label: 'Frequency', data: [5, 3], backgroundColor: '#3498db' }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Frequency' } } } } }),
+                rainfallVsYearLine: new Chart(document.getElementById('rainfallVsYearLine'), { type: 'line', data: { labels: [1990, 2000, 2010], datasets: [{ label: 'Rainfall', data: [500, 700, 600], borderColor: '#e67e22', fill: false }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Rainfall (mm)' } } } } }),
+                actualVsPredictedViolin: new Chart(document.getElementById('actualVsPredictedViolin'), { type: 'bar', data: { labels: [1, 2, 3], datasets: [{ label: 'Actual Density', data: [0.3, 0.5, 0.2], backgroundColor: '#2ecc71' }, { label: 'Predicted Density', data: [0.25, 0.6, 0.15], backgroundColor: '#3498db' }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Density' } } } } }),
+                residualBoxPlot: new Chart(document.getElementById('residualBoxPlot'), { type: 'bar', data: { labels: ['Region1', 'Region2'], datasets: [{ label: 'Residuals', data: [0.1, -0.2], backgroundColor: '#e74a3b' }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Residuals' } } } } }),
+                errorKDE: new Chart(document.getElementById('errorKDE'), { type: 'line', data: { labels: [-0.2, 0, 0.2], datasets: [{ label: 'Error Density', data: [0.3, 0.5, 0.2], borderColor: '#f6c23e', fill: false }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Density' } } } } }),
+                predictedVsActualLine: new Chart(document.getElementById('predictedVsActualLine'), { type: 'line', data: { labels: ['Region1', 'Region2'], datasets: [{ label: 'Actual', data: [2, 3], borderColor: '#2ecc71', fill: false }, { label: 'Predicted', data: [1.9, 2.8], borderColor: '#3498db', fill: false }] }, options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Yield (Tonnes/Ha)' } } } } })
+            };
+        }
+        initializeCharts();
+
+        function updateDatasetCharts(data) {
+            const rainfall = data['Avg Raifall / Year (mm )'].to_list().filter(v => !isNaN(v));
+            const pesticides = data['Pesticides (Tonnes)'].to_list().filter(v => !isNaN(v));
+            const temp = data['Avg Temp'].to_list().filter(v => !isNaN(v));
+            const yieldData = data['Yeild (Tonnes / Hectre)'].to_list().filter(v => !isNaN(v));
+            const year = data['Year'].to_list().filter(v => !isNaN(v));
+
+            function getBins(values, binSize) {
+                if (values.length === 0) return { labels: [], counts: [] };
+                const minVal = Math.min(...values);
+                const maxVal = Math.max(...values);
+                const labels = Array.from({ length: Math.floor((maxVal - minVal) / binSize) + 1 }, (_, i) => `${Math.floor(minVal + i * binSize)}-${Math.floor(minVal + (i + 1) * binSize)}`);
+                const counts = Array(labels.length).fill(0);
+                values.forEach(v => {
+                    const bin = Math.floor((v - minVal) / binSize);
+                    if (bin >= 0 && bin < labels.length) counts[bin]++;
+                });
+                return { labels, counts };
+            }
+
+            function getDensity(values) {
+                if (values.length === 0) return { x: [], y: [] };
+                const sorted = [...values].sort((a, b) => a - b);
+                const density = Array(sorted.length).fill(0).map((_, i) => i / (sorted.length - 1));
+                return { x: sorted, y: density };
+            }
+
+            const rainfallDensity = getDensity(rainfall);
+            const tempDensity = getDensity(temp);
+            const pesticidesCum = pesticides.reduce((acc, val, i) => { acc[i] = (acc[i-1] || 0) + val; return acc; }, []);
+            const yieldBins = getBins(yieldData, 5);
+            const regionCrop = data['Area'].str.cat(data['Item'], sep='-').unique().to_list().slice(0, 2);
+            const heatmapData = Array(regionCrop.length).fill(1);
+
+            charts.rainfallViolin.data = { labels: rainfallDensity.x, datasets: [{ label: 'Rainfall Density', data: rainfallDensity.y, backgroundColor: '#4a90e2' }] };
+            charts.pesticidesArea.data = { labels: Array(pesticidesCum.length).fill().map((_, i) => i), datasets: [{ label: 'Pesticides Area', data: pesticidesCum, backgroundColor: 'rgba(246, 194, 62, 0.5)', fill: true }] };
+            charts.temperatureKDE.data = { labels: tempDensity.x, datasets: [{ label: 'Temperature Density', data: tempDensity.y, borderColor: '#e74a3b', fill: false }] };
+            charts.yieldHistogram.data = { labels: yieldBins.labels, datasets: [{ label: 'Yield Count', data: yieldBins.counts, backgroundColor: '#2ecc71' }] };
+            charts.regionCropHeatmap.data = { labels: regionCrop, datasets: [{ label: 'Frequency', data: heatmapData, backgroundColor: '#3498db' }] };
+            charts.rainfallVsYearLine.data = { labels: year, datasets: [{ label: 'Rainfall', data: rainfall, borderColor: '#e67e22', fill: false }] };
+            Object.values(charts).forEach(chart => chart.update());
+        }
+
+        function updatePredictionCharts(data) {
+            const actual = data['Actual Yield'].to_list().filter(v => !isNaN(v));
+            const predicted = data['Predicted Yield'].to_list().filter(v => !isNaN(v));
+            const residuals = actual.map((a, i) => a - (predicted[i] || 0));
+            const areas = [...new Set(data['Area'].to_list())].slice(0, 2);
+
+            function getDensity(values) {
+                if (values.length === 0) return { x: [], y: [] };
+                const sorted = [...values].sort((a, b) => a - b);
+                const density = Array(sorted.length).fill(0).map((_, i) => i / (sorted.length - 1));
+                return { x: sorted, y: density };
+            }
+
+            const actualDensity = getDensity(actual);
+            const predictedDensity = getDensity(predicted);
+            const errorDensity = getDensity(residuals);
+
+            charts.actualVsPredictedViolin.data = {
+                labels: actualDensity.x,
+                datasets: [
+                    { label: 'Actual Density', data: actualDensity.y, backgroundColor: '#2ecc71' },
+                    { label: 'Predicted Density', data: predictedDensity.y, backgroundColor: '#3498db' }
+                ]
+            };
+            charts.residualBoxPlot.data = { labels: areas, datasets: [{ label: 'Residuals', data: [residuals], backgroundColor: '#e74a3b' }] };
+            charts.errorKDE.data = { labels: errorDensity.x, datasets: [{ label: 'Error Density', data: errorDensity.y, borderColor: '#f6c23e', fill: false }] };
+            charts.predictedVsActualLine.data = {
+                labels: areas,
+                datasets: [
+                    { label: 'Actual', data: areas.map(a => actual.find((v, i) => data['Area'].to_list()[i] === a) || 0), borderColor: '#2ecc71', fill: false },
+                    { label: 'Predicted', data: areas.map(a => predicted.find((v, i) => data['Area'].to_list()[i] === a) || 0), borderColor: '#3498db', fill: false }
+                ]
+            };
+            Object.values(charts).forEach(chart => chart.update());
+        }
+
+        function updateInsights(text) {
+            document.getElementById('insights').innerHTML = text;
+        }
+
+        // Event Listeners
+        document.getElementById('loadDataBtn').addEventListener('click', () => {
+            const fileInput = document.getElementById('csvFile');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    pyodide.runPythonAsync(`
+                        import pandas as pd
+                        import js
+                        data = pd.read_csv(pd.compat.StringIO(${JSON.stringify(new TextDecoder().decode(data))})
+                        js.updateDatasetCharts(data)
+                        train_model(data)
+                    `);
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert('No file selected.');
+            }
+        });
+
+        document.getElementById('loadPredDataBtn').addEventListener('click', () => {
+            const fileInput = document.getElementById('predCsvFile');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    pyodide.runPythonAsync(`
+                        import pandas as pd
+                        import js
+                        data = pd.read_csv(pd.compat.StringIO(${JSON.stringify(new TextDecoder().decode(data))})
+                        js.updatePredictionCharts(data)
+                        train_model(data)
+                    `);
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert('No file selected.');
+            }
+        });
+    </script>
+
+    <py-script>
+import asyncio
+import js
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+import pandas as pd
+from pyodide.http import pyfetch
+
+console = js.console
+javascript = js
+
+async def load_initial_data():
+    try:
+        response = await pyfetch('sample_data.csv')
+        if response.ok:
+            text = await response.text()
+            data = pd.read_csv(pd.compat.StringIO(text))
+            if not data.empty:
+                javascript.updateDatasetCharts(data)
+                train_model(data)
+            else:
+                console.log('Sample data is empty')
+        else:
+            console.log(f'Failed to fetch sample_data.csv: {response.status}')
+    except Exception as e:
+        console.log(f'Error loading sample data: {e}')
+
+    try:
+        pred_response = await pyfetch('predictions_for_powerbi.csv')
+        if pred_response.ok:
+            pred_text = await pred_response.text()
+            pred_data = pd.read_csv(pd.compat.StringIO(pred_text))
+            if not pred_data.empty:
+                javascript.updatePredictionCharts(pred_data)
+                train_model(pred_data)
+            else:
+                console.log('Prediction data is empty')
+        else:
+            console.log(f'Failed to fetch predictions_for_powerbi.csv: {pred_response.status}')
+    except Exception as e:
+        console.log(f'Error loading prediction data: {e}')
+
+async def main():
+    await load_initial_data()
+
+def train_model(data):
+    try:
+        X = data[['Avg Raifall / Year (mm )', 'Pesticides (Tonnes)', 'Avg Temp', 'Rainfal-Pesticide Ratio (mm/Ton)']].fillna(0)
+        y = data['Yeild (Tonnes / Hectre)'].fillna(0)
+        if len(X) == 0 or len(y) == 0:
+            javascript.updateInsights('<h4>Insights</h4><p>No valid data for training.</p>')
+            return
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        model.fit(X_train_scaled, y_train)
+        y_pred = model.predict(X_test_scaled)
+        importance = model.feature_importances_
+        update_insights(importance, y_test, y_pred)
+    except Exception as e:
+        console.log(f'Error in model training: {e}')
+        javascript.updateInsights('<h4>Insights</h4><p>Error training model.</p>')
+
+def update_insights(importance, y_test, y_pred):
+    limiting_factor = ['Rainfall', 'Pesticides', 'Temperature', 'Ratio'][np.argmin(importance)]
+    rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
+    avg_diff = np.mean(np.abs(y_test - y_pred))
+    insights = f"""
+    <h4>Insights</h4>
+    <ul>
+        <li>RMSE: {rmse:.2f}</li>
+        <li>Limiting Factor: {limiting_factor} (Importance: {np.min(importance):.2f})</li>
+        <li>Avg Difference: {avg_diff:.2f} tonnes/ha</li>
+    </ul>
+    """
+    javascript.updateInsights(insights)
+
+asyncio.ensure_future(main())
+    </py-script>
+</body>
+</html>

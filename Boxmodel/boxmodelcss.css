@@ -1,0 +1,37 @@
+div{
+    height: 50px;
+    width: 50px;
+    border:2px cornflowerblue;
+    margin: 10px;
+    
+}
+#div1{
+    display:inline-block;
+    background-color: blue;
+    margin: 10px;
+    padding: 10px;
+}
+#div2{
+    background-color: blueviolet;
+    display: inline-block;
+    height: 80px;
+    width: 80px;
+}
+#div1:hover{
+    background-color: brown;
+}
+a{
+display: inline-block;
+height: 60px;
+width: 60px;
+}
+#s1{
+    color: crimson;
+    font-style: italic;
+    font-size: 50px;
+}
+#s2{
+    color: fuchsia;
+    font-style: initial;
+    font-size: medium;
+}

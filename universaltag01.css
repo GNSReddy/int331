@@ -1,0 +1,15 @@
+*{
+    margin:0;
+    background-color:bisque;
+}
+p{
+    color: red;
+}
+#p1{
+    color: blue;
+    font-size: 16px;
+}
+.C1{
+    color:darkmagenta;
+    font-size: 18px;
+}

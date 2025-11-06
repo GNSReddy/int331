@@ -1,0 +1,37 @@
+table{
+    color:red;
+    width: 70%;
+    text-align: center;
+}
+table,td,th{
+    text-align: center;
+    border: 1px solid blueviolet;
+    border-collapse: collapse;
+}
+td{
+    font-size: 20px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    background-color: blanchedalmond;
+    text-align:start;
+}
+.first{
+    background-color:lightpink;
+    font-size: 28px;
+
+}
+.second{
+    background-color: chartreuse;
+    font-size: 25px;
+}
+td:nth-child(even){
+    background-color:lightgray;
+}
+td:nth-child(odd){
+    background-color: khaki;
+}
+td:hover{
+    background-color:aqua;
+}
+th:hover{
+    background-color:aqua;
+}

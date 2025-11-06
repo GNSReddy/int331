@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure File System Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">SecureFS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light me-2" onclick="showLoginModal()">Login</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">Register</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-primary text-white py-5 mb-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-3">Secure & Optimized File Management</h1>
+                    <p class="lead mb-4">Advanced file system with encryption, threat detection, and performance optimization for your critical data.</p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-light btn-lg px-4" onclick="document.getElementById('demo').scrollIntoView()">See Demo</button>
+                        <button class="btn btn-outline-light btn-lg px-4" onclick="document.getElementById('how-it-works').scrollIntoView()">Learn More</button>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="encryption-animation">
+                        <div class="encryption-overlay"></div>
+                        <i class="fas fa-lock fa-4x mb-3 text-primary"></i>
+                        <h3 class="text-dark">Files Secured with AES-256</h3>
+                        <p class="text-muted">All files are encrypted before storage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">System Features</h2>
+                <p class="lead text-muted">Comprehensive security and optimization for your files</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            <h5 class="card-title">Secure Authentication</h5>
+                            <p class="card-text text-muted">
+                                Password hashing with PBKDF2/bcrypt and optional two-factor authentication (2FA) via email or TOTP.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h5 class="card-title">File Encryption</h5>
+                            <p class="card-text text-muted">
+                                AES-256 encryption for all stored files with secure key management using HSM or software vaults.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <h5 class="card-title">Performance Optimization</h5>
+                            <p class="card-text text-muted">
+                                Bitmap and indexed allocation, caching, read-ahead techniques, and parallel processing for fast access.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h5 class="card-title">Threat Detection</h5>
+                            <p class="card-text text-muted">
+                                Malware scanning with ClamAV, heuristic analysis, and suspicious activity monitoring.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Interactive Demo</h2>
+                <p class="lead text-muted">Experience the system's key features</p>
+            </div>
+            
+            <div class="demo-container">
+                <ul class="nav nav-tabs" id="demoTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="auth-tab" data-bs-toggle="tab" data-bs-target="#auth" type="button">Authentication</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button">File Management</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button">Security</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance" type="button">Performance</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="demoTabsContent">
+                    <!-- Authentication Tab -->
+                    <div class="tab-pane fade show active" id="auth" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Secure Login System</h4>
+                                <p>Try logging in with these demo credentials:</p>
+                                <ul>
+                                    <li>Regular user: <code>user1 / password123</code></li>
+                                    <li>Admin user: <code>admin / admin123</code></li>
+                                </ul>
+                                
+                                <form id="loginForm" class="mb-4">
+                                    <div class="mb-3">
+                                        <label for="demoUsername" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="demoUsername" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="demoPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="demoPassword" required>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="demoRemember">
+                                        <label class="form-check-label" for="demoRemember">Remember me</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Login</button>
+                                </form>
+                                
+                                <div class="alert alert-info">
+                                    <h5>Security Features:</h5>
+                                    <ul>
+                                        <li>Password hashing with PBKDF2</li>
+                                        <li>Brute-force protection with rate limiting</li>
+                                        <li>Optional 2FA available</li>
+                                        <li>Session timeout enforcement</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Authentication Log</h4>
+                                <div id="authLog" class="p-3 bg-light rounded" style="height: 300px; overflow-y: auto;">
+                                    <div class="log-entry">
+                                        <strong>System:</strong> Authentication service initialized
+                                    </div>
+                                    <div class="log-entry success">
+                                        <strong>System:</strong> Ready for login attempts
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- File Management Tab -->
+                    <div class="tab-pane fade" id="files" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>File Operations</h4>
+                                <div class="mb-4">
+                                    <h5>Upload File</h5>
+                                    <form id="uploadForm">
+                                        <div class="mb-3">
+                                            <label for="fileUpload" class="form-label">Select file</label>
+                                            <input class="form-control" type="file" id="fileUpload">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                    </form>
+                                    
+                                    <div class="mt-3" id="uploadProgress" style="display: none;">
+                                        <p>Encrypting and uploading file...</p>
+                                        <div class="progress progress-thin">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h5>File Actions</h5>
+                                    <div id="fileActions" class="d-none">
+                                        <button class="btn btn-sm btn-success me-2" onclick="downloadSelectedFile()">Download</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteSelectedFile()">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Your Files</h4>
+                                <div id="fileList" class="list-group">
+                                    <div class="list-group-item">No files uploaded yet</div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <h5>File System Structure</h5>
+                                    <img src="https://www.ntfs.com/images/ntfs-structure.png" alt="File System Structure" class="file-structure-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Tab -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Threat Detection</h4>
+                                <div class="mb-4">
+                                    <h5>Malware Scanning</h5>
+                                    <p>All uploaded files are scanned for malware using signature-based detection and heuristic analysis.</p>
+                                    <button class="btn btn-primary" onclick="simulateMalwareScan()">Run Scan Demo</button>
+                                    
+                                    <div id="malwareScanResult" class="mt-3"></div>
+                                </div>
+                                
+                                <div>
+                                    <h5>Suspicious Activity Monitoring</h5>
+                                    <p>The system monitors for unusual patterns like multiple failed logins or access from suspicious IPs.</p>
+                                    <button class="btn btn-warning" onclick="simulateSuspiciousActivity()">Simulate Attack</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Security Log</h4>
+                                <div id="securityLog" class="p-3 bg-light rounded" style="height: 400px; overflow-y: auto;">
+                                    <div class="log-entry">
+                                        <strong>System:</strong> Security monitoring initialized
+                                    </div>
+                                    <div class="log-entry success">
+                                        <strong>System:</strong> All services running with latest security patches
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Tab -->
+                    <div class="tab-pane fade" id="performance" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Performance Optimization</h4>
+                                <div class="mb-4">
+                                    <h5>Free Space Management</h5>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Used Space</span>
+                                            <span>65%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <p>The system uses bitmap-based allocation for efficient space management with minimal fragmentation.</p>
+                                </div>
+                                
+                                <div>
+                                    <h5>Access Optimization</h5>
+                                    <p>Techniques used to improve performance:</p>
+                                    <ul>
+                                        <li>Caching of frequently accessed files</li>
+                                        <li>Read-ahead for sequential access patterns</li>
+                                        <li>Indexed allocation for fast random access</li>
+                                        <li>Parallel processing for large operations</li>
+                                    </ul>
+                                    <button class="btn btn-primary" onclick="runPerformanceTest()">Run Performance Test</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Performance Metrics</h4>
+                                <div id="performanceMetrics">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title">File Access Times</h5>
+                                            <img src="https://www.researchgate.net/publication/334632709/figure/fig1/AS:783989736955904@1564010849886/File-access-time-comparison-between-the-proposed-method-and-the-traditional-method.png" alt="File Access Times" class="file-structure-img">
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Throughput Comparison</h5>
+                                            <img src="https://www.researchgate.net/publication/334632709/figure/fig2/AS:783989736955905@1564010849915/Throughput-comparison-between-the-proposed-method-and-the-traditional-method.png" alt="Throughput Comparison" class="file-structure-img">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">How It Works</h2>
+                <p class="lead text-muted">The technology behind the Secure File System</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">File Storage Architecture</h4>
+                            <img src="https://www.ntfs.com/images/ntfs-architecture.gif" alt="File Storage Architecture" class="file-structure-img mb-3">
+                            <p>The system uses a multi-layered architecture with:</p>
+                            <ul>
+                                <li>Encrypted file storage at the core</li>
+                                <li>Access control middleware</li>
+                                <li>Performance optimization layer</li>
+                                <li>Threat detection services</li>
+                                <li>User interface and API layer</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Encryption Process</h4>
+                            <img src="https://www.researchgate.net/publication/338487142/figure/fig1/AS:842021079220224@1577723253210/Data-Encryption-Standard-DES-algorithm.png" alt="Encryption Process" class="file-structure-img mb-3">
+                            <p>Files are encrypted using AES-256 with the following process:</p>
+                            <ol>
+                                <li>User uploads file through secure channel</li>
+                                <li>System generates unique encryption key</li>
+                                <li>File is encrypted in memory</li>
+                                <li>Encrypted file is stored with metadata</li>
+                                <li>Encryption key is securely stored</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Threat Detection</h4>
+                            <img src="https://www.researchgate.net/publication/334632709/figure/fig3/AS:783989736955906@1564010849943/Threat-detection-rate-comparison-between-the-proposed-method-and-the-traditional-method.png" alt="Threat Detection" class="file-structure-img mb-3">
+                            <p>The system employs multiple threat detection mechanisms:</p>
+                            <ul>
+                                <li>Real-time malware scanning</li>
+                                <li>Behavioral analysis of file operations</li>
+                                <li>Network traffic monitoring</li>
+                                <li>Anomaly detection for user activities</li>
+                                <li>Regular security audits</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Performance Optimization</h4>
+                            <img src="https://www.researchgate.net/publication/334632709/figure/fig4/AS:783989736955907@1564010849970/Performance-comparison-between-the-proposed-method-and-the-traditional-method.png" alt="Performance Optimization" class="file-structure-img mb-3">
+                            <p>Key performance optimization techniques:</p>
+                            <ul>
+                                <li>Efficient file allocation strategies</li>
+                                <li>Intelligent caching mechanisms</li>
+                                <li>Parallel processing of operations</li>
+                                <li>Compression for storage and transfer</li>
+                                <li>Load balancing for concurrent access</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Secure File System</h5>
+                    <p>A secure and optimized file management solution for modern organizations.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#features" class="text-white">Features</a></li>
+                        <li><a href="#demo" class="text-white">Demo</a></li>
+                        <li><a href="#how-it-works" class="text-white">How It Works</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> info@securefs.example</li>
+                        <li><i class="fas fa-phone me-2"></i> +1 (555) 123-4567</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 Secure File System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalLoginForm">
+                        <div class="mb-3">
+                            <label for="modalUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="modalUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="modalPassword" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="modalRemember">
+                            <label class="form-check-label" for="modalRemember">Remember me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="mb-0">Don't have an account? <a href="#" onclick="showRegisterModal()">Register</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalRegisterForm">
+                        <div class="mb-3">
+                            <label for="regUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="regUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="regPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="regConfirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="mb-0">Already have an account? <a href="#" onclick="showLoginModal()">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

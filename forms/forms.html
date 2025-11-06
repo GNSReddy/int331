@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="form.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Course Registration</h2>
+        <form>
+            First Name:<input type="text" name="firstname"/><br>
+            Last Name:<input type="text" name="lastname"/><br>
+            Gender:<br>
+            <input type="radio" name="gender" value="male"/>Male
+            <input type="radio" name="gender" value="female"/>Female
+            <br>
+            Choose your preference: <br>
+            <input type="checkbox" value="java"/>Java <br>
+            <input type="checkbox" value="cpp"/>C++ <br>
+            <input type="checkbox" value="python"/>Python <br>
+            <input type="checkbox" value="webdev"/>Web Development/> <br>
+            Write why you are opting for this course(100words): <br>
+            <textarea rows="10" cols="40" name="textarea"></textarea> <br>
+            Choose Batch:
+            <select name="dropbox">
+                <option value="9to11">9AM-11AM</option>
+                <option value="11to1">11AM-1PM</option>
+                <option value="1to3">1PM-3PM</option>
+            </select> <br>
+            password: <input type="password" name="password"/> <br>
+            color: <input type="color"> <br>
+            Date: <input type="date"/> <br>
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+        </form>
+    </div>
+</body>
+</html>

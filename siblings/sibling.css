@@ -1,0 +1,18 @@
+/* Group of selectors */
+#para1,#para2,#para3{
+    color: blue;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+/* descendant selector */
+.container .main{
+    border:2px brown;
+    background-color: aqua;
+}
+/* child combination */
+.container > .nav{
+    color: green;
+}
+/* adjacent sibling */
+div p+p{ 
+    background-color:chartreuse;
+}

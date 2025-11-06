@@ -1,0 +1,56 @@
+2025-03-27 01:53:28,702 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-27 01:53:28,702 - INFO - [33mPress CTRL+C to quit[0m
+2025-03-27 01:53:28,703 - INFO -  * Restarting with stat
+2025-03-27 01:53:29,140 - WARNING -  * Debugger is active!
+2025-03-27 01:53:29,141 - INFO -  * Debugger PIN: 571-528-985
+2025-03-27 01:55:31,831 - INFO - 127.0.0.1 - - [27/Mar/2025 01:55:31] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-27 01:55:31,902 - INFO - 127.0.0.1 - - [27/Mar/2025 01:55:31] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-03-27 01:55:31,929 - INFO - 127.0.0.1 - - [27/Mar/2025 01:55:31] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-03-27 01:55:31,977 - INFO - 127.0.0.1 - - [27/Mar/2025 01:55:31] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=yPYao2EOZhI35LtL5zYh HTTP/1.1" 200 -
+2025-03-27 01:55:31,984 - INFO - 127.0.0.1 - - [27/Mar/2025 01:55:31] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-03-27 01:55:58,628 - INFO -  * To enable the debugger you need to enter the security pin:
+2025-03-27 01:55:58,628 - INFO -  * Debugger pin code: 571-528-985
+2025-03-27 01:55:58,629 - INFO - 127.0.0.1 - - [27/Mar/2025 01:55:58] "GET /?__debugger__=yes&cmd=printpin&s=yPYao2EOZhI35LtL5zYh HTTP/1.1" 200 -
+2025-03-27 01:56:48,882 - INFO -  * Detected change in 'C:\\Users\\nagas\\OneDrive\\Desktop\\HTML_File\\os\\app.py', reloading
+2025-03-27 01:56:48,959 - INFO -  * Restarting with stat
+2025-03-27 01:56:49,475 - WARNING -  * Debugger is active!
+2025-03-27 01:56:49,477 - INFO -  * Debugger PIN: 571-528-985
+2025-03-27 01:57:53,037 - INFO - 127.0.0.1 - - [27/Mar/2025 01:57:53] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-27 01:57:53,105 - INFO - 127.0.0.1 - - [27/Mar/2025 01:57:53] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-27 01:57:53,108 - INFO - 127.0.0.1 - - [27/Mar/2025 01:57:53] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-27 01:57:53,142 - INFO - 127.0.0.1 - - [27/Mar/2025 01:57:53] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=WSj5U9LReotrQYXIwNSP HTTP/1.1" 200 -
+2025-03-27 01:57:56,827 - INFO -  * To enable the debugger you need to enter the security pin:
+2025-03-27 01:57:56,827 - INFO -  * Debugger pin code: 571-528-985
+2025-03-27 01:57:56,828 - INFO - 127.0.0.1 - - [27/Mar/2025 01:57:56] "GET /?__debugger__=yes&cmd=printpin&s=WSj5U9LReotrQYXIwNSP HTTP/1.1" 200 -
+2025-03-27 02:04:34,760 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-27 02:04:34,760 - INFO - [33mPress CTRL+C to quit[0m
+2025-03-27 02:04:34,762 - INFO -  * Restarting with stat
+2025-03-27 02:04:35,202 - WARNING -  * Debugger is active!
+2025-03-27 02:04:35,204 - INFO -  * Debugger PIN: 571-528-985
+2025-03-27 02:05:15,727 - INFO - 127.0.0.1 - - [27/Mar/2025 02:05:15] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-27 02:05:15,740 - INFO - 127.0.0.1 - - [27/Mar/2025 02:05:15] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-27 02:05:15,740 - INFO - 127.0.0.1 - - [27/Mar/2025 02:05:15] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-27 02:05:15,780 - INFO - 127.0.0.1 - - [27/Mar/2025 02:05:15] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png&s=WSj5U9LReotrQYXIwNSP HTTP/1.1[0m" 304 -
+2025-03-27 02:05:19,598 - INFO -  * To enable the debugger you need to enter the security pin:
+2025-03-27 02:05:19,598 - INFO -  * Debugger pin code: 571-528-985
+2025-03-27 02:05:19,599 - INFO - 127.0.0.1 - - [27/Mar/2025 02:05:19] "GET /?__debugger__=yes&cmd=printpin&s=WSj5U9LReotrQYXIwNSP HTTP/1.1" 200 -
+2025-03-27 02:10:33,753 - INFO - 127.0.0.1 - - [27/Mar/2025 02:10:33] "GET /?__debugger__=yes&cmd=pinauth&pin=admin123&s=WSj5U9LReotrQYXIwNSP HTTP/1.1" 200 -
+2025-03-27 02:12:37,034 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.22.140.43:5000
+2025-03-27 02:12:37,034 - INFO - [33mPress CTRL+C to quit[0m
+2025-03-27 02:14:40,888 - INFO - 127.0.0.1 - - [27/Mar/2025 02:14:40] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-27 02:14:40,900 - INFO - 127.0.0.1 - - [27/Mar/2025 02:14:40] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-27 02:14:40,902 - INFO - 127.0.0.1 - - [27/Mar/2025 02:14:40] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-27 02:14:40,948 - INFO - 127.0.0.1 - - [27/Mar/2025 02:14:40] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png&s=WSj5U9LReotrQYXIwNSP HTTP/1.1[0m" 304 -
+2025-03-27 02:14:44,649 - INFO -  * To enable the debugger you need to enter the security pin:
+2025-03-27 02:14:44,650 - INFO -  * Debugger pin code: 571-528-985
+2025-03-27 02:14:44,650 - INFO - 127.0.0.1 - - [27/Mar/2025 02:14:44] "GET /?__debugger__=yes&cmd=printpin&s=WSj5U9LReotrQYXIwNSP HTTP/1.1" 200 -
+2025-03-27 02:21:44,236 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.22.140.43:5000
+2025-03-27 02:21:44,236 - INFO - [33mPress CTRL+C to quit[0m

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Organization</title>
+  
+</head>
+<body>
+  <header>
+    <h1 style="text-align: center;">Event organization</h1>
+  </header><br>
+  <main>
+    <section style="text-align: center;">
+      <h2>Choose Your Event</h2>
+      <form id="event-form">
+        <label for="event-name">Event Name:</label>
+        <input type="text" id="event-name" name="event-name" required>
+        <br><br>
+        <label for="event-date">Date:</label>
+        <input type="date" id="event-date" name="event-date" required>
+        <br><br>
+        <label for="event-capacity">Capacity Limit:</label>
+        <input type="number" id="event-capacity" name="event-capacity" min="1" max="3"required>
+        <br><br>
+        
+      </form>
+    </section>
+    <section id="event-details">
+      
+      </section><br><br>
+  </main>
+  <div style="text-align: center;">
+        
+    <button onclick="showAlert()">Submit</button>
+    <script src="register.js"></script>
+</div>
+  <script src="register.js"></script>
+</body>
+</html>

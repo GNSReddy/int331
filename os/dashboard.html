@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Your Files</h2>
+<a href="{{ url_for('upload') }}" class="btn btn-success mb-3">Upload New File</a>
+
+{% if files %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Upload Date</th>
+                    <th>Size (bytes)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                    <tr>
+                        <td>{{ file['filename'] }}</td>
+                        <td>{{ file['upload_date'] }}</td>
+                        <td>{{ file['file_size'] }}</td>
+                        <td>
+                            <a href="{{ url_for('download', file_id=file['id']) }}" class="btn btn-sm btn-primary">Download</a>
+                            <a href="{{ url_for('delete', file_id=file['id']) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>You haven't uploaded any files yet.</p>
+{% endif %}
+{% endblock %}

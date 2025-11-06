@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="register.css">
+</head>
+<body>
+    <h1 style="text-align: center; color: crimson;">Registration Form</h1><br><br>
+    <div>
+        <form>
+            <p>
+            <label>Name:<input type="name"></label>
+            </p><br>
+            <p>
+            <label>Email:<input type="email"/></label>
+            </p><p><br>
+                <label>Phone Number:<input type="number"/></label>
+                </p><br>
+                <p>
+                    <label>Adress:<input type="adress"/></label>
+                    </p><br>
+                    <p>
+                        <label>College Reg No:<input type="number"/></label>
+                        </p><br><br>
+        <h2>Select your Gender</h2><br>
+            <label>Male<input type="radio" name="gender" value="male"/></label>
+         <label>Female<input type="radio" name="gender"  value="female"/></label> 
+         <label>Other<input type="radio" name="gender" value="Other"/></label> <br><br>
+         <h2>Choose Language</h2>
+         <ul style="list-style-type:none;">
+        <li><input type="checkbox" name="language" value="hindi"/>
+        Hindi</li>
+        <li> <input type="checkbox" name="language" value="english"/>
+            English</li>
+            <li> <input type="checkbox" name="language" value="sanskrit"/>Sanskrit</li>
+            </ul><br><br>
+            <h2>Select your Nationality</h2><br>
+            <select name="language">
+                <option value="indian">Indian</option>
+                <option value="nepali">Nepali</option>
+                <option value="china">China</option>
+                <option value="America">America</option>
+                <option value="Others">Others</option>
+            </select>
+                <br><br>
+                <h2 style="color:brown;">Choose the Event you want to manage</h2><br><br>
+                <h2>Sports event</h2><br>
+            <select name="Event name">
+                <option value="Cricket">Cricket event</option>
+                <option value="Inter University event">Inter University event</option>
+                <option value="Inter Hostel event">Inter Hostel event</option>
+            </select> 
+            <br><br>
+            <h2>Select Cultural event</h2><br>
+            <select name="cultural event">
+                <option value="Dance compition">Dance Compition</option>
+                <option value="Singing compition">Singing compition</option>
+                <option value="Drawing compition">Drawing compition</option>
+                <option value="Debate compition">Debate compition</option>
+                <option value="Quiz compition">Quiz compition</option>
+            </select>
+
+        </form><br><br>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="eventorg.html">Book Event</a><br><br>
+    </div>
+
+    <div style="text-align: center;">
+        
+        <button onclick="showAlert()">Submit</button>
+        <script src="register.js"></script>
+    </div>
+    <br><br><br>
+</body>
+</html>

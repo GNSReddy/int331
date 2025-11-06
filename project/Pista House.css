@@ -1,0 +1,39 @@
+*{
+    margin: 0;
+    padding:0;
+}
+html{
+    scroll-behavior:auto;
+}
+body{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+
+
+
+.discussion h2, .offers h2, .gallery h2,.Giveremarks,.varieties{
+    color:darkslategray;
+    text-align: center;
+}
+
+
+img{
+    width: 50%;
+    height: 45vh;
+}
+.mainimg{   
+    width: 50%;
+}
+li{
+    color:brown;
+}
+title{
+    font-family: 'Times New Roman', Times, serif;
+}
+.vareity{
+    width: 23%;
+}
+.first a:hover{
+    color:deepskyblue;
+}

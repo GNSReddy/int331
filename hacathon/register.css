@@ -1,0 +1,14 @@
+*{
+    margin: 0;
+    padding: 0;
+    
+}
+html{
+    scroll-behavior: auto;
+}
+form{
+    text-align: center;
+}
+h2{
+    color: red;
+}

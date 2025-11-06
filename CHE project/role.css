@@ -1,0 +1,57 @@
+*{
+    margin: 0;
+    padding:0;
+}
+html{
+    scroll-behavior:auto;
+}
+body{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.one{
+    min-height: 100vh;
+    width: 100%;
+    background-image: url(rolebac2.webp);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    filter: brightness(90%);
+    filter: blur(50%);
+    text-align: center;
+}
+
+.one a:hover{
+    background-color:cyan;
+}
+
+.agri{
+    background-color: lightgreen;
+    padding-top: 2%;
+    padding-left: 2%;
+}
+
+.hel{
+    background-color:bisque;
+    padding-top: 2%;
+    padding-left: 2%;
+}
+
+.city{
+    background-color:khaki;
+    padding-top: 2%;
+    padding-left: 2%;
+}
+
+.edu{
+    background-color:lavender;
+    padding-top: 2%;
+    padding-left: 2%;
+}
+
+.water{
+    background-color:lightyellow;
+    padding-top: 2%;
+    padding-left: 2%;
+}
+

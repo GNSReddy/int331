@@ -1,0 +1,41 @@
+*{
+    margin: 0;
+    padding:0;
+}
+html{
+    scroll-behavior:auto;
+}
+body{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.one{
+    text-align: center;
+    background-image: url(infobac.webp);
+    min-height: 100vh;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    filter: brightness(70%);
+    filter: blur(80%);
+}
+
+.two{
+    padding-top: 37%;
+}
+
+.two a:hover{
+    background-color:greenyellow;
+}
+
+.why{
+    background-color: gold;
+    padding-top: 2%;
+    padding-left: 2%;
+}
+
+img{
+    height: 40vh;
+    width: 32%;
+}

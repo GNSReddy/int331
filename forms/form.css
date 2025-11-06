@@ -1,0 +1,14 @@
+h2{
+    color: darkred;
+}
+div{
+    background-color:chartreuse;
+    text-align: center;
+    color:red;
+    margin: 0;
+}
+input{
+    background-color:bisque;
+    color:brown;
+
+}

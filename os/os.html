@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure & Optimized File Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+        }
+        h1, h2, h3 {
+            color: #4e9af1;
+        }
+        .btn-primary {
+            background-color: #4e9af1;
+            border-color: #4e9af1;
+        }
+        .btn-primary:hover {
+            background-color: #3a7bc8;
+            border-color: #3a7bc8;
+        }
+        .btn-danger {
+            background-color: #e74a3b;
+            border-color: #e74a3b;
+        }
+        .btn-success {
+            background-color: #1cc88a;
+            border-color: #1cc88a;
+        }
+        .log {
+            background: #252525;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-top: 15px;
+            border: 1px solid #333;
+        }
+        .log-entry {
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 3px solid #4e9af1;
+        }
+        .log-entry.warning {
+            border-left-color: #f6c23e;
+            color: #f6c23e;
+        }
+        .log-entry.danger {
+            border-left-color: #e74a3b;
+            color: #e74a3b;
+        }
+        .log-entry.success {
+            border-left-color: #1cc88a;
+            color: #1cc88a;
+        }
+        .progress {
+            height: 10px;
+            margin: 15px 0;
+            background-color: #333;
+        }
+        .progress-bar {
+            background-color: #4e9af1;
+        }
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .file-item {
+            background: #252525;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+        .workflow-container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 1px solid #333;
+        }
+        .workflow-step {
+            background: #252525;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4e9af1;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .workflow-step.active {
+            background: #2a3a4a;
+            border-left: 4px solid #1cc88a;
+        }
+        .workflow-step.completed {
+            background: #1e2a1e;
+            border-left: 4px solid #1cc88a;
+        }
+        .workflow-arrow {
+            text-align: center;
+            color: #4e9af1;
+            font-size: 20px;
+            margin: 5px 0;
+        }
+        .encryption-animation {
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(78, 154, 241, 0.1),
+                rgba(78, 154, 241, 0.1) 10px,
+                rgba(78, 154, 241, 0.2) 10px,
+                rgba(78, 154, 241, 0.2) 20px
+            );
+            background-size: 28px 28px;
+            animation: move 2s linear infinite;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 28px 0; }
+        }
+        .file-structure {
+            font-family: monospace;
+            background: #252525;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Secure & Optimized File Management System</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="container">
+                    <h2>User Authentication</h2>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <button class="btn btn-primary" onclick="login()">Login</button>
+                    <button class="btn btn-secondary ms-2" onclick="register()">Register</button>
+                    <div class="log" id="authLog">
+                        <div class="log-entry">Authentication service ready</div>
+                    </div>
+                </div>
+
+                <div class="container mt-4">
+                    <h2>File Encryption</h2>
+                    <div class="mb-3">
+                        <label for="fileInput" class="form-label">Select file to upload</label>
+                        <input class="form-control" type="file" id="fileInput">
+                    </div>
+                    <div class="mb-3">
+                        <label for="textToEncrypt" class="form-label">Or enter text to encrypt</label>
+                        <textarea class="form-control" id="textToEncrypt" rows="3"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="encryptAndUpload()">Encrypt & Upload</button>
+                    <div class="progress mt-3 d-none" id="encryptProgress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div class="log" id="encryptLog">
+                        <div class="log-entry">No encryption operations yet</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="container">
+                    <h2>File Management</h2>
+                    <div class="file-list" id="fileList">
+                        <div class="file-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5>No files available</h5>
+                                    <small class="text-muted">Upload files to see them here</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex mt-3" id="fileActions" style="display: none !important;">
+                        <button class="btn btn-success me-2" onclick="downloadFile()">Download</button>
+                        <button class="btn btn-danger" onclick="deleteFile()">Delete</button>
+                    </div>
+                </div>
+
+                <div class="container mt-4">
+                    <h2>Threat Detection</h2>
+                    <button class="btn btn-primary" onclick="runThreatScan()">Run Threat Scan</button>
+                    <button class="btn btn-warning ms-2" onclick="simulateAttack()">Simulate Attack</button>
+                    <div class="log" id="threatLog">
+                        <div class="log-entry">No threats detected</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-4">
+            <h2>System Recovery</h2>
+            <button class="btn btn-primary" onclick="createBackup()">Create Backup</button>
+            <button class="btn btn-success ms-2" onclick="restoreSystem()">Restore System</button>
+            <div class="log" id="recoveryLog">
+                <div class="log-entry">System status: Normal</div>
+            </div>
+        </div>
+
+        <div class="workflow-container mt-4">
+            <h2 class="text-center">System Workflow Demonstration</h2>
+            <div id="workflowDemo">
+                <div class="workflow-step" id="step1">
+                    <h4>User Authentication</h4>
+                    <p>Secure login with PBKDF2 password hashing and optional 2FA</p>
+                </div>
+                <div class="workflow-arrow">↓</div>
+                <div class="workflow-step" id="step2">
+                    <h4>Access Control Verification</h4>
+                    <p>Role-based access control (RBAC) validation</p>
+                </div>
+                <div class="workflow-arrow">↓</div>
+                <div class="workflow-step" id="step3">
+                    <h4>File Management Operations</h4>
+                    <p>Encrypted file operations with metadata tracking</p>
+                </div>
+                <div class="workflow-arrow">↓</div>
+                <div class="workflow-step" id="step4">
+                    <h4>Performance Optimization</h4>
+                    <p>Caching, parallel processing, and space management</p>
+                </div>
+                <div class="workflow-arrow">↓</div>
+                <div class="workflow-step" id="step5">
+                    <h4>Threat Detection</h4>
+                    <p>Real-time monitoring and malware scanning</p>
+                </div>
+                <div class="workflow-arrow">↓</div>
+                <div class="workflow-step" id="step6">
+                    <h4>Data Recovery</h4>
+                    <p>Journaling, checkpointing, and snapshot recovery</p>
+                </div>
+                <div class="workflow-arrow">↓</div>
+                <div class="workflow-step" id="step7">
+                    <h4>Audit & Reporting</h4>
+                    <p>Comprehensive logging and analysis</p>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <button class="btn btn-primary" onclick="startWorkflowDemo()">Start Workflow Demonstration</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Demo data
+        const demoUsers = {
+            'admin': { password: 'admin123', isAdmin: true },
+            'user1': { password: 'password123', isAdmin: false }
+        };
+        
+        let currentUser = null;
+        let files = [];
+        let workflowInterval;
+        let currentStep = 0;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load sample files for demo
+            files = [
+                { id: 1, name: 'document.pdf', size: '2.3 MB', date: '2023-06-15', encrypted: true },
+                { id: 2, name: 'presentation.pptx', size: '5.7 MB', date: '2023-06-10', encrypted: true }
+            ];
+            updateFileList();
+        });
+        
+        // Authentication functions
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (demoUsers[username] && demoUsers[username].password === password) {
+                currentUser = {
+                    username: username,
+                    isAdmin: demoUsers[username].isAdmin
+                };
+                addLogEntry('authLog', `User ${username} logged in successfully`, 'success');
+                
+                // Enable file operations
+                document.getElementById('fileInput').disabled = false;
+                document.getElementById('textToEncrypt').disabled = false;
+            } else {
+                addLogEntry('authLog', 'Invalid username or password', 'danger');
+            }
+        }
+        
+        function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username && password) {
+                demoUsers[username] = { password: password, isAdmin: false };
+                addLogEntry('authLog', `User ${username} registered successfully`, 'success');
+            } else {
+                addLogEntry('authLog', 'Please enter both username and password', 'warning');
+            }
+        }
+        
+        // File management functions
+        function encryptAndUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const textInput = document.getElementById('textToEncrypt').value;
+            
+            if (fileInput.files.length === 0 && !textInput) {
+                addLogEntry('encryptLog', 'Please select a file or enter text to encrypt', 'warning');
+                return;
+            }
+            
+            const progressBar = document.getElementById('encryptProgress');
+            progressBar.classList.remove('d-none');
+            const bar = progressBar.querySelector('.progress-bar');
+            bar.style.width = '0%';
+            
+            // Simulate encryption progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                bar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressBar.classList.add('d-none');
+                        
+                        if (fileInput.files.length > 0) {
+                            const file = fileInput.files[0];
+                            const newFile = {
+                                id: files.length + 1,
+                                name: file.name,
+                                size: formatFileSize(file.size),
+                                date: new Date().toISOString().split('T')[0],
+                                encrypted: true
+                            };
+                            files.push(newFile);
+                            addLogEntry('encryptLog', `File "${file.name}" encrypted and uploaded successfully`, 'success');
+                        }
+                        
+                        if (textInput) {
+                            addLogEntry('encryptLog', `Text encrypted: "${encryptText(textInput)}"`, 'success');
+                        }
+                        
+                        updateFileList();
+                    }, 500);
+                }
+            }, 200);
+        }
+        
+        function encryptText(text) {
+            // Simple encryption for demo purposes
+            return btoa(text).split('').reverse().join('');
+        }
+        
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            if (files.length === 0) {
+                fileList.innerHTML = `
+                    <div class="file-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5>No files available</h5>
+                                <small class="text-muted">Upload files to see them here</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5>${file.name}</h5>
+                            <small class="text-muted">${file.size} - ${file.date} - ${file.encrypted ? 'Encrypted' : 'Not Encrypted'}</small>
+                        </div>
+                        <div>
+                            <input type="radio" name="selectedFile" value="${file.id}" onchange="toggleFileActions()">
+                        </div>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+        
+        function toggleFileActions() {
+            const fileActions = document.getElementById('fileActions');
+            const selectedFile = document.querySelector('input[name="selectedFile"]:checked');
+            
+            if (selectedFile) {
+                fileActions.style.display = 'flex';
+            } else {
+                fileActions.style.display = 'none';
+            }
+        }
+        
+        function downloadFile() {
+            const selectedFileId = document.querySelector('input[name="selectedFile"]:checked').value;
+            const file = files.find(f => f.id == selectedFileId);
+            
+            if (file) {
+                addLogEntry('encryptLog', `Downloading file "${file.name}"`, 'success');
+                // In a real app, this would trigger the actual download
+                alert(`Simulating download of ${file.name}`);
+            }
+        }
+        
+        function deleteFile() {
+            const selectedFileId = document.querySelector('input[name="selectedFile"]:checked').value;
+            const fileIndex = files.findIndex(f => f.id == selectedFileId);
+            
+            if (fileIndex !== -1) {
+                const fileName = files[fileIndex].name;
+                files.splice(fileIndex, 1);
+                updateFileList();
+                document.getElementById('fileActions').style.display = 'none';
+                addLogEntry('encryptLog', `File "${fileName}" deleted`, 'success');
+            }
+        }
+        
+        // Threat detection functions
+        function runThreatScan() {
+            addLogEntry('threatLog', 'Starting threat detection scan...', 'info');
+            
+            setTimeout(() => {
+                const threats = [
+                    'Scan complete: No threats detected',
+                    'Warning: Suspicious file pattern detected',
+                    'Critical: Potential malware signature found'
+                ];
+                const randomThreat = threats[Math.floor(Math.random() * threats.length)];
+                
+                if (randomThreat.includes('No threats')) {
+                    addLogEntry('threatLog', randomThreat, 'success');
+                } else if (randomThreat.includes('Warning')) {
+                    addLogEntry('threatLog', randomThreat, 'warning');
+                } else {
+                    addLogEntry('threatLog', randomThreat, 'danger');
+                }
+            }, 2000);
+        }
+        
+        function simulateAttack() {
+            addLogEntry('threatLog', 'Simulating attack scenario...', 'warning');
+            
+            setTimeout(() => {
+                const attacks = [
+                    'Detected brute force attempt from IP 192.168.1.105',
+                    'Blocked SQL injection attempt',
+                    'Quarantined suspicious executable file'
+                ];
+                const randomAttack = attacks[Math.floor(Math.random() * attacks.length)];
+                addLogEntry('threatLog', randomAttack, 'danger');
+                
+                setTimeout(() => {
+                    addLogEntry('threatLog', 'Automatic countermeasures applied', 'success');
+                }, 1000);
+            }, 1500);
+        }
+        
+        // Recovery functions
+        function createBackup() {
+            addLogEntry('recoveryLog', 'Creating system backup...', 'info');
+            
+            setTimeout(() => {
+                addLogEntry('recoveryLog', 'Backup created successfully at ' + new Date().toLocaleString(), 'success');
+            }, 2000);
+        }
+        
+        function restoreSystem() {
+            addLogEntry('recoveryLog', 'Initiating system recovery...', 'warning');
+            
+            setTimeout(() => {
+                addLogEntry('recoveryLog', 'Restoring from latest checkpoint...', 'info');
+                
+                setTimeout(() => {
+                    addLogEntry('recoveryLog', 'System recovery completed successfully', 'success');
+                }, 2000);
+            }, 1000);
+        }
+        
+        // Workflow demonstration
+        function startWorkflowDemo() {
+            resetWorkflowDemo();
+            currentStep = 0;
+            
+            workflowInterval = setInterval(() => {
+                if (currentStep > 0) {
+                    document.getElementById(`step${currentStep}`).classList.remove('active');
+                    document.getElementById(`step${currentStep}`).classList.add('completed');
+                }
+                
+                currentStep++;
+                
+                if (currentStep > 7) {
+                    clearInterval(workflowInterval);
+                    return;
+                }
+                
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                
+                // Simulate actions for each step
+                switch(currentStep) {
+                    case 1:
+                        addLogEntry('authLog', 'User authentication in progress...', 'info');
+                        setTimeout(() => addLogEntry('authLog', 'User authenticated successfully', 'success'), 800);
+                        break;
+                    case 2:
+                        addLogEntry('authLog', 'Verifying access permissions...', 'info');
+                        setTimeout(() => addLogEntry('authLog', 'Access granted', 'success'), 800);
+                        break;
+                    case 3:
+                        addLogEntry('encryptLog', 'Processing file operations...', 'info');
+                        setTimeout(() => addLogEntry('encryptLog', 'Files encrypted and stored', 'success'), 800);
+                        break;
+                    case 4:
+                        addLogEntry('encryptLog', 'Optimizing performance...', 'info');
+                        setTimeout(() => addLogEntry('encryptLog', 'Performance optimizations applied', 'success'), 800);
+                        break;
+                    case 5:
+                        addLogEntry('threatLog', 'Scanning for threats...', 'info');
+                        setTimeout(() => addLogEntry('threatLog', 'Threat scan completed', 'success'), 800);
+                        break;
+                    case 6:
+                        addLogEntry('recoveryLog', 'Setting up recovery points...', 'info');
+                        setTimeout(() => addLogEntry('recoveryLog', 'Recovery system ready', 'success'), 800);
+                        break;
+                    case 7:
+                        addLogEntry('recoveryLog', 'Generating audit reports...', 'info');
+                        setTimeout(() => addLogEntry('recoveryLog', 'Audit completed', 'success'), 800);
+                        break;
+                }
+            }, 1500);
+        }
+        
+        function resetWorkflowDemo() {
+            clearInterval(workflowInterval);
+            
+            for (let i = 1; i <= 7; i++) {
+                document.getElementById(`step${i}`).classList.remove('active', 'completed');
+            }
+        }
+        
+        // Helper functions
+        function addLogEntry(logId, message, type) {
+            const log = document.getElementById(logId);
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

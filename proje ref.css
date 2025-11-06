@@ -1,0 +1,39 @@
+.restaurant-info {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+}
+
+.restaurant-info h2 {
+    color: #333;
+}
+
+.restaurant-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.restaurant-info li {
+    margin-bottom: 10px;
+}
+
+.restaurant-info a {
+    text-decoration: none;
+    color: #333;
+}
+
+.restaurant-info a:hover {
+    text-decoration: underline;
+}
+
+.discussion, .offers, .gallery {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+}
+
+.discussion h2, .offers h2, .gallery h2 {
+    color: #333;
+}

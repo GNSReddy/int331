@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 Optimizing File System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --dark-color: #5a5c69;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fc;
+            color: #333;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .demo-container {
+            background-color: white;
+            border-radius: 0.35rem;
+            padding: 2rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .log-entry {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-entry.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .log-entry.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .log-entry.success {
+            border-left-color: var(--secondary-color);
+        }
+
+        #fileList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .progress-thin {
+            height: 5px;
+        }
+
+        .encryption-animation {
+            position: relative;
+            overflow: hidden;
+            background-color: white;
+            height: 300px;
+            border-radius: 0.35rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .encryption-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(78, 115, 223, 0.1),
+                rgba(78, 115, 223, 0.1) 10px,
+                rgba(78, 115, 223, 0.2) 10px,
+                rgba(78, 115, 223, 0.2) 20px
+            );
+            background-size: 28px 28px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 28px 0; }
+        }
+
+        .file-structure {
+            font-family: monospace;
+            background: #252525;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            color: #fff;
+        }
+
+        .alert {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">SecureFS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                </ul>
+                <div class="d-flex" id="auth-buttons">
+                    <button class="btn btn-outline-light me-2" onclick="showLoginModal()">Login</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">Register</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-primary text-white py-5 mb-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-3">Optimizing File System</h1>
+                    <p class="lead mb-4">Secure file storage with encryption, decryption, threat detection, and performance optimization.</p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-light btn-lg px-4" onclick="document.getElementById('demo').scrollIntoView()">See Demo</button>
+                        <button class="btn btn-outline-light btn-lg px-4" onclick="document.getElementById('how-it-works').scrollIntoView()">Learn More</button>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="encryption-animation">
+                        <div class="encryption-overlay"></div>
+                        <i class="fas fa-lock fa-4x mb-3 text-primary"></i>
+                        <h3 className="text-dark">Files Secured with AES-256</h3>
+                        <p className="text-muted">All files and text are encrypted before storage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">System Features</h2>
+                <p class="lead text-muted">Comprehensive security and optimization for your files</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                            <h5 class="card-title">Secure Authentication</h5>
+                            <p class="card-text text-muted">Password hashing and session management for safe access.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                            <h5 class="card-title">Encryption & Decryption</h5>
+                            <p class="card-text text-muted">AES-256 encryption and decryption for files and text.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            <h5 class="card-title">Performance Optimization</h5>
+                            <p class="card-text text-muted">Bitwise allocation and caching for fast access.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h5 class="card-title">Threat Detection</h5>
+                            <p class="card-text text-muted">Monitor suspicious files and activity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Interactive Demo</h2>
+                <p class="lead text-muted">Experience the system's key features</p>
+            </div>
+            <div class="demo-container">
+                <ul class="nav nav-tabs" id="demoTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="auth-tab" data-bs-toggle="tab" data-bs-target="#auth">Authentication</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="files-tab" data-bs-toggle="tab" data-bs-target="#files">File Management</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security">Security</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance">Performance</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="demoTabsContent">
+                    <!-- Authentication Tab -->
+                    <div class="tab-pane fade show active" id="auth" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Secure Login System</h4>
+                                <p>Register or log in to access file management features.</p>
+                                <form id="loginForm" class="mb-4">
+                                    <div class="mb-3">
+                                        <label for="demoUsername" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="demoUsername" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="demoPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="demoPassword" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Login</button>
+                                </form>
+                                <div class="alert alert-info">
+                                    <h5>Security Features:</h5>
+                                    <ul>
+                                        <li>Client-side password hashing</li>
+                                        <li>Session management</li>
+                                        <li>Admin access for logs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Authentication Log</h4>
+                                <div id="authLog" class="p-3 bg-light rounded" style="height: 300px; overflow-y: auto;">
+                                    <div class="log-entry">System: Authentication service initialized</div>
+                                    <div class="log-entry success">System: Ready for login attempts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- File Management Tab -->
+                    <div class="tab-pane fade" id="files" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>File Operations</h4>
+                                <div class="mb-4">
+                                    <h5>Upload File</h5>
+                                    <form id="uploadForm">
+                                        <div class="mb-3">
+                                            <label for="fileUpload" class="form-label">Select file (any type)</label>
+                                            <input class="form-control" type="file" id="fileUpload">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                    </form>
+                                    <div class="mt-3" id="uploadProgress" style="display: none;">
+                                        <p>Encrypting and uploading file...</p>
+                                        <div class="progress progress-thin">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div id="uploadStatus"></div>
+                                </div>
+                                <div>
+                                    <h5>File Actions</h5>
+                                    <div id="fileActions" class="d-none">
+                                        <button class="btn btn-sm btn-success me-2" onclick="downloadSelectedFile()">Decrypt & Download</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteSelectedFile()">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Your Files</h4>
+                                <div id="fileList" class="list-group"></div>
+                                <div class="mt-3">
+                                    <h5>File System Structure</h5>
+                                    <div class="file-structure">
+                                        <pre>user_data/
+├── user1/
+│   ├── files/
+│   │   ├── doc1.any
+│   │   └── file2.any
+│   └── metadata.json
+└── admin/
+    ├── files/
+    │   ├── config.any
+    └── metadata.json</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Security Tab -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Security Operations</h4>
+                                <div class="mb-4">
+                                    <h5>Text Encryption & Decryption</h5>
+                                    <input type="text" id="textInput" class="form-control mb-2" placeholder="Enter text to encrypt">
+                                    <button class="btn btn-primary me-2" onclick="simulateTextEncryption()">Encrypt Text</button>
+                                    <input type="text" id="decryptTextInput" class="form-control mt-2 mb-2" placeholder="Enter encrypted text to decrypt">
+                                    <button class="btn btn-success" onclick="simulateTextDecryption()">Decrypt Text</button>
+                                    <p id="encryptedText" class="mt-2"></p>
+                                </div>
+                                <div>
+                                    <h5>Threat Detection</h5>
+                                    <button class="btn btn-primary" onclick="simulateMalwareScan()">Run Scan</button>
+                                    <button class="btn btn-warning mt-2" onclick="simulateSuspiciousActivity()">Simulate Attack</button>
+                                    <div id="malwareScanResult" class="mt-3"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Security Log</h4>
+                                <div id="securityLog" class="p-3 bg-light rounded" style="height: 300px; overflow-y: auto;">
+                                    <div class="log-entry">System: Security monitoring initialized</div>
+                                    <div class="log-entry success">System: All services running</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Performance Tab -->
+                    <div class="tab-pane fade" id="performance" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Performance Optimization</h4>
+                                <div class="mb-4">
+                                    <h5>Free Space Management</h5>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Used Space</span>
+                                            <span id="storageUsage">0%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" id="storageBar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <p>Bitwise bitmap allocation for efficient space management.</p>
+                                </div>
+                                <div>
+                                    <h5>System Recovery</h5>
+                                    <button class="btn btn-primary" onclick="simulateRecovery()">Simulate Recovery</button>
+                                    <div id="recoveryLog" class="mt-3"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Performance Metrics</h4>
+                                <div id="performanceMetrics">
+                                    <button class="btn btn-primary mb-3" onclick="runPerformanceTest()">Run Performance Test</button>
+                                    <div id="performanceResults"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">How It Works</h2>
+                <p class="lead text-muted">The technology behind the Secure File System</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">File Storage Architecture</h4>
+                            <p>Multi-layered architecture with:</p>
+                            <ul>
+                                <li>Encrypted file storage</li>
+                                <li>Access control</li>
+                                <li>Bitwise allocation</li>
+                                <li>Threat detection</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Encryption Process</h4>
+                            <p>Files and text are encrypted with AES-256:</p>
+                            <ol>
+                                <li>Upload file or input text</li>
+                                <li>Generate encryption key</li>
+                                <li>Encrypt with AES-GCM</li>
+                                <li>Store encrypted data</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Threat Detection</h4>
+                            <p>Mechanisms include:</p>
+                            <ul>
+                                <li>File validation</li>
+                                <li>Extension checks</li>
+                                <li>Activity monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Performance Optimization</h4>
+                            <p>Techniques used:</p>
+                            <ul>
+                                <li>Bitwise allocation</li>
+                                <li>Caching</li>
+                                <li>Fast decryption</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Secure File System</h5>
+                    <p>A secure and optimized file management solution.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#features" class="text-white">Features</a></li>
+                        <li><a href="#demo" class="text-white">Demo</a></li>
+                        <li><a href="#how-it-works" class="text-white">How It Works</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> gandranagasrinivasareddy@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p class="mb-0">© 2025 Secure File System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalLoginForm">
+                        <div class="mb-3">
+                            <label for="modalUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="modalUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="modalPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="mb-0">Don't have an account? <a href="#" onclick="showRegisterModal()">Register</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalRegisterForm">
+                        <div class="mb-3">
+                            <label for="regUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="regUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="regPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="regConfirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="mb-0">Already have an account? <a href="#" onclick="showLoginModal()">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize localStorage
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify({}));
+        }
+        if (!localStorage.getItem('files')) {
+            localStorage.setItem('files', JSON.stringify({}));
+        }
+        if (!localStorage.getItem('logs')) {
+            localStorage.setItem('logs', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('bitmap')) {
+            localStorage.setItem('bitmap', JSON.stringify(Array(1000).fill(0)));
+        }
+
+        // Input validation
+        function validateInput(data, maxLength = 100, allowFilename = false) {
+            if (!data || typeof data !== 'string' || !data.trim()) return [false, 'Invalid or empty input'];
+            if (data.length > maxLength) return [false, 'Input too long'];
+            if (!allowFilename) {
+                if (!/^[a-zA-Z0-9_@.-]+$/.test(data)) return [false, 'Invalid characters'];
+            } else {
+                if (/[<>\|;:]/.test(data)) return [false, 'Invalid filename characters'];
+            }
+            return [true, ''];
+        }
+
+        // Simulate ClamAV
+        function simulateClamAV(filename, data) {
+            if (!data || data.length === 0) return [false, 'Empty file detected'];
+            if (/\.(exe|bat|cmd|scr)$/i.test(filename)) return [false, 'Suspicious file extension'];
+            const entropy = [...new Set(data)].length / data.length;
+            if (entropy > 0.9) return [false, 'High entropy, potential malware'];
+            return [true, 'No threats detected'];
+        }
+
+        // Bitwise allocation
+        function allocateBlocks(size) {
+            const bitmap = JSON.parse(localStorage.getItem('bitmap'));
+            const blocksNeeded = Math.max(1, Math.ceil(size / 4096)); // 4KB per block
+            try {
+                for (let i = 0; i <= bitmap.length - blocksNeeded; i++) {
+                    if (bitmap.slice(i, i + blocksNeeded).every(b => b === 0)) {
+                        for (let j = i; j < i + blocksNeeded; j++) bitmap[j] = 1;
+                        localStorage.setItem('bitmap', JSON.stringify(bitmap));
+                        return Array.from({ length: blocksNeeded }, (_, k) => i + k);
+                    }
+                }
+                return null;
+            } catch (e) {
+                logAction('system', 'allocate_error', `Failed to allocate: ${e}`, 'danger');
+                return null;
+            }
+        }
+
+        function freeBlocks(blockIds) {
+            const bitmap = JSON.parse(localStorage.getItem('bitmap'));
+            try {
+                blockIds.forEach(bid => {
+                    if (bid >= 0 && bid < bitmap.length) bitmap[bid] = 0;
+                });
+                localStorage.setItem('bitmap', JSON.stringify(bitmap));
+            } catch (e) {
+                logAction('system', 'free_blocks_error', `Failed to free blocks: ${e}`, 'danger');
+            }
+        }
+
+        function calculateStorageUsage() {
+            const bitmap = JSON.parse(localStorage.getItem('bitmap'));
+            const used = bitmap.filter(b => b === 1).length;
+            const total = bitmap.length;
+            return ((used / total) * 100).toFixed(2);
+        }
+
+        // Simple client-side hashing
+        async function hashPassword(password) {
+            const msgBuffer = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Generate encryption key
+        async function generateKey() {
+            return await crypto.subtle.generateKey(
+                { name: "AES-GCM", length: 256 },
+                true,
+                ["encrypt", "decrypt"]
+            );
+        }
+
+        // Encrypt file data
+        async function encryptFile(fileData) {
+            const key = await generateKey();
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encodedData = new TextEncoder().encode(fileData);
+            const encrypted = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: iv },
+                key,
+                encodedData
+            );
+            return { encrypted, iv, key };
+        }
+
+        // Decrypt file data
+        async function decryptFile(encrypted, iv, key) {
+            try {
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: "AES-GCM", iv: iv },
+                    key,
+                    encrypted
+                );
+                return new TextDecoder().decode(decrypted);
+            } catch (e) {
+                logAction('system', 'decrypt_error', `Decryption failed: ${e}`, 'danger');
+                return null;
+            }
+        }
+
+        // Encrypt text (AES-GCM)
+        async function encryptText(text) {
+            const key = await generateKey();
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encodedData = new TextEncoder().encode(text);
+            const encrypted = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: iv },
+                key,
+                encodedData
+            );
+            return { encrypted, iv, key };
+        }
+
+        // Decrypt text (AES-GCM)
+        async function decryptText(encrypted, iv, key) {
+            try {
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: "AES-GCM", iv: iv },
+                    key,
+                    encrypted
+                );
+                return new TextDecoder().decode(decrypted);
+            } catch (e) {
+                logAction('system', 'text_decrypt_error', `Text decryption failed: ${e}`, 'danger');
+                return null;
+            }
+        }
+
+        // Convert ArrayBuffer to base64
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        // Convert base64 to ArrayBuffer
+        function base64ToArrayBuffer(base64) {
+            const binary = atob(base64);
+            const len = binary.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        // Log action
+        function logAction(username, action, details, type = 'info') {
+            const logs = JSON.parse(localStorage.getItem('logs'));
+            logs.push({
+                timestamp: new Date().toLocaleString(),
+                username,
+                action,
+                details,
+                type
+            });
+            localStorage.setItem('logs', JSON.stringify(logs));
+            addLogEntry('securityLog', `${action}: ${details}`, type);
+        }
+
+        // Update navigation
+        function updateNav() {
+            const isLoggedIn = localStorage.getItem('currentUser');
+            const authButtons = document.getElementById('auth-buttons');
+            if (isLoggedIn) {
+                authButtons.innerHTML = `
+                    <button class="btn btn-outline-light me-2" onclick="showDashboard()">Dashboard</button>
+                    <button class="btn btn-primary" onclick="logout()">Logout</button>
+                `;
+                document.getElementById('fileUpload').disabled = false;
+            } else {
+                authButtons.innerHTML = `
+                    <button class="btn btn-outline-light me-2" onclick="showLoginModal()">Login</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">Register</button>
+                `;
+                document.getElementById('fileUpload').disabled = true;
+            }
+            updateFileList();
+            updateStorageBar();
+        }
+
+        // Update storage bar
+        function updateStorageBar() {
+            const usage = calculateStorageUsage();
+            const storageBar = document.getElementById('storageBar');
+            const storageUsage = document.getElementById('storageUsage');
+            storageBar.style.width = `${usage}%`;
+            storageUsage.textContent = `${usage}%`;
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('files-tab').click();
+            updateFileList();
+        }
+
+        // Logout
+        function logout() {
+            const username = localStorage.getItem('currentUser');
+            logAction(username, 'logout', 'User logged out', 'success');
+            localStorage.removeItem('currentUser');
+            updateNav();
+            document.getElementById('auth-tab').click();
+        }
+
+        // Show modals
+        function showLoginModal() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+        }
+
+        function showRegisterModal() {
+            const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+            modal.show();
+        }
+
+        // Handle register
+        document.getElementById('modalRegisterForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            const [validUsername, msgUsername] = validateInput(username);
+            if (!validUsername) {
+                alert(msgUsername);
+                logAction('unknown', 'register_failed', `Invalid username: ${msgUsername}`, 'danger');
+                return;
+            }
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            if (username.length < 3 || password.length < 6) {
+                alert('Username must be 3+ characters, password 6+ characters.');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            if (users[username]) {
+                alert('Username already exists.');
+                return;
+            }
+
+            users[username] = await hashPassword(password);
+            localStorage.setItem('users', JSON.stringify(users));
+            logAction(username, 'register', 'User registered', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+            showLoginModal();
+        });
+
+        // Handle login
+        document.getElementById('modalLoginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('modalUsername').value.trim();
+            const password = document.getElementById('modalPassword').value;
+
+            const [validUsername, msgUsername] = validateInput(username);
+            if (!validUsername) {
+                alert(msgUsername);
+                logAction('unknown', 'login_failed', `Invalid username: ${msgUsername}`, 'danger');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            const hashedPassword = await hashPassword(password);
+
+            if (users[username] && users[username] === hashedPassword) {
+                localStorage.setItem('currentUser', username);
+                logAction(username, 'login', 'User logged in', 'success');
+                updateNav();
+                bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                showDashboard();
+            } else {
+                alert('Invalid username or password.');
+                logAction('unknown', 'login_failed', 'Invalid login attempt', 'danger');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('demoUsername').value.trim();
+            const password = document.getElementById('demoPassword').value;
+
+            const [validUsername, msgUsername] = validateInput(username);
+            if (!validUsername) {
+                addLogEntry('authLog', `Invalid username: ${msgUsername}`, 'danger');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            const hashedPassword = await hashPassword(password);
+
+            if (users[username] && users[username] === hashedPassword) {
+                localStorage.setItem('currentUser', username);
+                logAction(username, 'login', 'User logged in', 'success');
+                updateNav();
+                showDashboard();
+            } else {
+                addLogEntry('authLog', 'Invalid username or password', 'danger');
+            }
+        });
+
+        // File upload with encryption
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileUpload');
+            const file = fileInput.files[0];
+            const username = localStorage.getItem('currentUser');
+
+            if (!username) {
+                alert('Please log in to upload files.');
+                return;
+            }
+            if (!file) {
+                alert('Please select a file.');
+                return;
+            }
+            if (file.size === 0) {
+                alert('File is empty.');
+                logAction(username, 'upload_failed', 'Empty file uploaded', 'danger');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File too large. Max size: 5MB.');
+                logAction(username, 'upload_failed', `File too large: ${file.size} bytes`, 'danger');
+                return;
+            }
+
+            const [validFilename, msgFilename] = validateInput(file.name, 100, true);
+            if (!validFilename) {
+                alert(msgFilename);
+                logAction(username, 'upload_failed', `Invalid filename: ${msgFilename}`, 'danger');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const fileData = e.target.result;
+                    const [scanOk, scanMsg] = simulateClamAV(file.name, fileData);
+                    if (!scanOk) {
+                        alert(`Threat detected: ${scanMsg}`);
+                        logAction(username, 'upload_failed', `Threat in ${file.name}: ${scanMsg}`, 'danger');
+                        return;
+                    }
+
+                    const blockIds = allocateBlocks(file.size);
+                    if (!blockIds) {
+                        alert('No free space available.');
+                        logAction(username, 'upload_failed', 'No free space', 'danger');
+                        return;
+                    }
+
+                    const { encrypted, iv, key } = await encryptFile(fileData);
+                    const encryptedBase64 = arrayBufferToBase64(encrypted);
+                    const ivBase64 = arrayBufferToBase64(iv);
+                    const exportedKey = await crypto.subtle.exportKey("jwk", key);
+
+                    const files = JSON.parse(localStorage.getItem('files'));
+                    const fileKey = `${username}_${file.name}_${Date.now()}`;
+                    files[fileKey] = {
+                        name: file.name,
+                        encryptedData: encryptedBase64,
+                        iv: ivBase64,
+                        key: exportedKey,
+                        type: file.type || 'application/octet-stream',
+                        size: formatFileSize(file.size),
+                        created: new Date().toISOString(),
+                        accessed: new Date().toISOString(),
+                        owner: username,
+                        isEncrypted: true,
+                        blockIds
+                    };
+                    localStorage.setItem('files', JSON.stringify(files));
+
+                    const progressBar = document.querySelector('#uploadProgress .progress-bar');
+                    const uploadProgress = document.getElementById('uploadProgress');
+                    uploadProgress.style.display = 'block';
+                    progressBar.style.width = '0%';
+
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 20;
+                        progressBar.style.width = `${progress}%`;
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            uploadProgress.style.display = 'none';
+                            document.getElementById('uploadStatus').innerHTML = `
+                                <div class="alert alert-success">File "${file.name}" uploaded and encrypted with AES-256! 🔒</div>
+                            `;
+                            logAction(username, 'upload', `File uploaded and encrypted: ${file.name}`, 'success');
+                            updateFileList();
+                            updateStorageBar();
+                            fileInput.value = '';
+                            setTimeout(() => {
+                                document.getElementById('uploadStatus').innerHTML = '';
+                            }, 3000);
+                        }
+                    }, 200);
+                } catch (err) {
+                    alert('Encryption failed. Please try again.');
+                    logAction(username, 'upload_failed', `Encryption error: ${err.message}`, 'danger');
+                }
+            };
+            reader.onerror = function() {
+                alert('Error reading file.');
+                logAction(username, 'upload_failed', 'File read error', 'danger');
+            };
+            reader.readAsBinaryString(file);
+        });
+
+        // Update file list
+        function updateFileList() {
+            const username = localStorage.getItem('currentUser');
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            if (!username) {
+                fileList.innerHTML = '<div class="list-group-item">Log in to view files</div>';
+                return;
+            }
+
+            const files = JSON.parse(localStorage.getItem('files'));
+            const userFiles = Object.keys(files).filter(key => files[key].owner === username);
+
+            if (userFiles.length === 0) {
+                fileList.innerHTML = '<div class="list-group-item">No files uploaded yet</div>';
+                return;
+            }
+
+            userFiles.forEach(key => {
+                const file = files[key];
+                const fileItem = document.createElement('div');
+                fileItem.className = 'list-group-item list-group-item-action';
+                fileItem.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-1">${file.name} ${file.isEncrypted ? '<i class="fas fa-lock"></i>' : ''}</h6>
+                            <small class="text-muted">${file.size} - ${file.created.split('T')[0]}</small>
+                        </div>
+                        <div>
+                            <input type="radio" name="selectedFile" value="${key}" onchange="toggleFileActions()">
+                        </div>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Toggle file actions
+        function toggleFileActions() {
+            const fileActions = document.getElementById('fileActions');
+            const selectedFile = document.querySelector('input[name="selectedFile"]:checked');
+            fileActions.classList.toggle('d-none', !selectedFile);
+        }
+
+        // Download file
+        async function downloadSelectedFile() {
+            const selectedFileKey = document.querySelector('input[name="selectedFile"]:checked').value;
+            const files = JSON.parse(localStorage.getItem('files'));
+            const file = files[selectedFileKey];
+
+            if (file) {
+                try {
+                    const encryptedBuffer = base64ToArrayBuffer(file.encryptedData);
+                    const ivBuffer = base64ToArrayBuffer(file.iv);
+                    const key = await crypto.subtle.importKey(
+                        "jwk",
+                        file.key,
+                        { name: "AES-GCM" },
+                        false,
+                        ["decrypt"]
+                    );
+                    const decryptedData = await decryptFile(encryptedBuffer, ivBuffer, key);
+                    if (!decryptedData) {
+                        alert('Decryption failed.');
+                        logAction(localStorage.getItem('currentUser'), 'download_failed', `Decryption error for: ${file.name}`, 'danger');
+                        return;
+                    }
+
+                    file.accessed = new Date().toISOString();
+                    localStorage.setItem('files', JSON.stringify(files));
+
+                    const blob = new Blob([decryptedData], { type: file.type });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.name;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    logAction(localStorage.getItem('currentUser'), 'download', `File decrypted and downloaded: ${file.name}`, 'success');
+                } catch (err) {
+                    alert('Error downloading file.');
+                    logAction(localStorage.getItem('currentUser'), 'download_failed', `Download error: ${err.message}`, 'danger');
+                }
+            }
+        }
+
+        // Delete file
+        function deleteSelectedFile() {
+            const selectedFileKey = document.querySelector('input[name="selectedFile"]:checked').value;
+            const files = JSON.parse(localStorage.getItem('files'));
+            const file = files[selectedFileKey];
+
+            if (file) {
+                freeBlocks(file.blockIds);
+                delete files[selectedFileKey];
+                localStorage.setItem('files', JSON.stringify(files));
+                logAction(localStorage.getItem('currentUser'), 'delete', `File deleted: ${file.name}`, 'success');
+                updateFileList();
+                updateStorageBar();
+                document.getElementById('fileActions').classList.add('d-none');
+            }
+        }
+
+        // Simulate text encryption
+        async function simulateTextEncryption() {
+            const textInput = document.getElementById('textInput').value;
+            const username = localStorage.getItem('currentUser') || 'guest';
+            if (!textInput) {
+                document.getElementById('encryptedText').innerHTML = '<div class="alert alert-info">Enter text to encrypt.</div>';
+                return;
+            }
+
+            const [validText, msgText] = validateInput(textInput, 1000);
+            if (!validText) {
+                document.getElementById('encryptedText').innerHTML = `<div class="alert alert-danger">${msgText}</div>`;
+                logAction(username, 'text_encrypt_failed', `Invalid text: ${msgText}`, 'danger');
+                return;
+            }
+
+            try {
+                const { encrypted, iv, key } = await encryptText(textInput);
+                const encryptedBase64 = arrayBufferToBase64(encrypted);
+                const exportedKey = await crypto.subtle.exportKey("jwk", key);
+                const ivBase64 = arrayBufferToBase64(iv);
+
+                const files = JSON.parse(localStorage.getItem('files'));
+                const textKey = `${username}_text_${Date.now()}`;
+                files[textKey] = {
+                    name: `encrypted_text_${Date.now()}.txt`,
+                    encryptedData: encryptedBase64,
+                    iv: ivBase64,
+                    key: exportedKey,
+                    type: 'text/plain',
+                    size: formatFileSize(textInput.length),
+                    created: new Date().toISOString(),
+                    accessed: new Date().toISOString(),
+                    owner: username,
+                    isEncrypted: true,
+                    blockIds: []
+                };
+                localStorage.setItem('files', JSON.stringify(files));
+
+                document.getElementById('encryptedText').innerHTML = `
+                    <div class="alert alert-success">Encrypted Text (saved as file): ${encryptedBase64} 🔒</div>
+                `;
+                logAction(username, 'text_encrypt', 'Text encrypted and saved', 'success');
+                updateFileList();
+            } catch (err) {
+                document.getElementById('encryptedText').innerHTML = `<div class="alert alert-danger">Encryption failed: ${err.message}</div>`;
+                logAction(username, 'text_encrypt_failed', `Encryption error: ${err.message}`, 'danger');
+            }
+        }
+
+        // Simulate text decryption
+        async function simulateTextDecryption() {
+            const textInput = document.getElementById('decryptTextInput').value;
+            const username = localStorage.getItem('currentUser') || 'guest';
+            if (!textInput) {
+                document.getElementById('encryptedText').innerHTML = '<div class="alert alert-info">Enter encrypted text to decrypt.</div>';
+                return;
+            }
+
+            try {
+                const files = JSON.parse(localStorage.getItem('files'));
+                const textFile = Object.values(files).find(f => f.encryptedData === textInput && f.owner === username);
+                if (!textFile) {
+                    document.getElementById('encryptedText').innerHTML = '<div class="alert alert-danger">No matching encrypted text found.</div>';
+                    logAction(username, 'text_decrypt_failed', 'No matching encrypted text', 'danger');
+                    return;
+                }
+
+                const encryptedBuffer = base64ToArrayBuffer(textFile.encryptedData);
+                const ivBuffer = base64ToArrayBuffer(textFile.iv);
+                const key = await crypto.subtle.importKey(
+                    "jwk",
+                    textFile.key,
+                    { name: "AES-GCM" },
+                    false,
+                    ["decrypt"]
+                );
+                const decryptedData = await decryptText(encryptedBuffer, ivBuffer, key);
+                if (!decryptedData) {
+                    document.getElementById('encryptedText').innerHTML = '<div class="alert alert-danger">Decryption failed.</div>';
+                    logAction(username, 'text_decrypt_failed', 'Decryption error', 'danger');
+                    return;
+                }
+
+                document.getElementById('encryptedText').innerHTML = `
+                    <div class="alert alert-success">Decrypted Text: ${decryptedData} 🔓</div>
+                `;
+                logAction(username, 'text_decrypt', 'Text decrypted', 'success');
+            } catch (err) {
+                document.getElementById('encryptedText').innerHTML = `<div class="alert alert-danger">Decryption failed: ${err.message}</div>`;
+                logAction(username, 'text_decrypt_failed', `Decryption error: ${err.message}`, 'danger');
+            }
+        }
+
+        // Simulate malware scan
+        function simulateMalwareScan() {
+            const malwareScanResult = document.getElementById('malwareScanResult');
+            malwareScanResult.innerHTML = '<div class="alert alert-info">Scanning files...</div>';
+
+            setTimeout(() => {
+                const isInfected = Math.random() > 0.8;
+                if (isInfected) {
+                    malwareScanResult.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h5>Malware Detected!</h5>
+                            <p>File contains suspicious content.</p>
+                        </div>
+                    `;
+                    logAction('system', 'malware_scan', 'Malware detected', 'danger');
+                } else {
+                    malwareScanResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <h5>Scan Complete</h5>
+                            <p>No threats detected.</p>
+                        </div>
+                    `;
+                    logAction('system', 'malware_scan', 'No threats found', 'success');
+                }
+            }, 2000);
+        }
+
+        // Simulate suspicious activity
+        function simulateSuspiciousActivity() {
+            addLogEntry('securityLog', 'Multiple failed login attempts detected', 'warning');
+            setTimeout(() => {
+                addLogEntry('securityLog', 'Suspicious activity blocked', 'danger');
+            }, 1000);
+        }
+
+        // Simulate recovery
+        function simulateRecovery() {
+            const recoveryLog = document.getElementById('recoveryLog');
+            recoveryLog.innerHTML = '<div class="alert alert-info">Initiating recovery...</div>';
+
+            setTimeout(() => {
+                recoveryLog.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>Recovery Complete</h5>
+                        <p>System restored to stable state.</p>
+                    </div>
+                `;
+                logAction('system', 'recovery', 'System recovery completed', 'success');
+            }, 2000);
+        }
+
+        // Run performance test
+        function runPerformanceTest() {
+            const performanceResults = document.getElementById('performanceResults');
+            performanceResults.innerHTML = `
+                <div class="alert alert-info">
+                    <h5>Running Performance Tests...</h5>
+                    <div class="progress progress-thin mt-2">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                performanceResults.innerHTML = `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Performance Results</h5>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Operation</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>File Read (1MB)</td><td>12ms</td></tr>
+                                    <tr><td>File Write (1MB)</td><td>18ms</td></tr>
+                                    <tr><td>Encryption</td><td>25ms</td></tr>
+                                    <tr><td>Decryption</td><td>20ms</td></tr>
+                                    <tr><td>Directory Listing</td><td>8ms</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="alert alert-success">
+                        Performance optimized for fast access
+                    </div>
+                `;
+                logAction('system', 'performance_test', 'Performance test completed', 'success');
+            }, 2000);
+        }
+
+        // Add log entry
+        function addLogEntry(logId, message, type) {
+            const log = document.getElementById(logId);
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.crypto || !window.crypto.subtle) {
+                alert('Web Crypto API not supported in this browser. Please use a modern browser like Chrome.');
+            }
+            updateNav();
+            updateFileList();
+            updateStorageBar();
+
+            // Admin logs access
+            document.getElementById('security-tab').addEventListener('click', function() {
+                const username = localStorage.getItem('currentUser');
+                if (username === 'admin') {
+                    const logs = JSON.parse(localStorage.getItem('logs'));
+                    const securityLog = document.getElementById('securityLog');
+                    securityLog.innerHTML = '';
+                    logs.forEach(log => {
+                        addLogEntry('securityLog', `${log.action} by ${log.username}: ${log.details}`, log.type);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizing File System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --dark-color: #5a5c69;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fc;
+            color: #333;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .demo-container {
+            background-color: white;
+            border-radius: 0.35rem;
+            padding: 2rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .log-entry {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-entry.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .log-entry.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .log-entry.success {
+            border-left-color: var(--secondary-color);
+        }
+
+        #fileList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .progress-thin {
+            height: 5px;
+        }
+
+        .encryption-animation {
+            position: relative;
+            overflow: hidden;
+            background-color: white;
+            height: 300px;
+            border-radius: 0.35rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .encryption-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(78, 115, 223, 0.1),
+                rgba(78, 115, 223, 0.1) 10px,
+                rgba(78, 115, 223, 0.2) 10px,
+                rgba(78, 115, 223, 0.2) 20px
+            );
+            background-size: 28px 28px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 28px 0; }
+        }
+
+        .file-structure {
+            font-family: monospace;
+            background: #252525;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            color: #fff;
+        }
+
+        .alert {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">SecureFS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                </ul>
+                <div class="d-flex" id="auth-buttons">
+                    <button class="btn btn-outline-light me-2" onclick="showLoginModal()">Login</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">Register</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-primary text-white py-5 mb-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-3">Optimizing File System</h1>
+                    <p class="lead mb-4">Secure file storage with encryption, threat detection, and performance optimization.</p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-light btn-lg px-4" onclick="document.getElementById('demo').scrollIntoView()">See Demo</button>
+                        <button class="btn btn-outline-light btn-lg px-4" onclick="document.getElementById('how-it-works').scrollIntoView()">Learn More</button>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="encryption-animation">
+                        <div class="encryption-overlay"></div>
+                        <i class="fas fa-lock fa-4x mb-3 text-primary"></i>
+                        <h3 class="text-dark">Files Secured with AES-256</h3>
+                        <p class="text-muted">All files and text are encrypted before storage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">System Features</h2>
+                <p class="lead text-muted">Comprehensive security and optimization for your files</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                            <h5 class="card-title">Secure Authentication</h5>
+                            <p class="card-text text-muted">Password hashing and session management for safe access.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                            <h5 class="card-title">File Encryption</h5>
+                            <p class="card-text text-muted">AES-256 encryption for all uploaded files.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            <h5 class="card-title">Performance Optimization</h5>
+                            <p class="card-text text-muted">Efficient file access and storage management.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h5 class="card-title">Threat Detection</h5>
+                            <p class="card-text text-muted">Monitor suspicious activity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Interactive Demo</h2>
+                <p class="lead text-muted">Experience the system's key features</p>
+            </div>
+            <div class="demo-container">
+                <ul class="nav nav-tabs" id="demoTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="auth-tab" data-bs-toggle="tab" data-bs-target="#auth">Authentication</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="files-tab" data-bs-toggle="tab" data-bs-target="#files">File Management</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security">Security</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance">Performance</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="demoTabsContent">
+                    <!-- Authentication Tab -->
+                    <div class="tab-pane fade show active" id="auth" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Secure Login System</h4>
+                                <p>Register or log in to access file management features.</p>
+                                <form id="loginForm" class="mb-4">
+                                    <div class="mb-3">
+                                        <label for="demoUsername" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="demoUsername" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="demoPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="demoPassword" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Login</button>
+                                </form>
+                                <div class="alert alert-info">
+                                    <h5>Security Features:</h5>
+                                    <ul>
+                                        <li>Client-side password hashing</li>
+                                        <li>Session management</li>
+                                        <li>Admin access for logs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Authentication Log</h4>
+                                <div id="authLog" class="p-3 bg-light rounded" style="height: 300px; overflow-y: auto;">
+                                    <div class="log-entry">System: Authentication service initialized</div>
+                                    <div class="log-entry success">System: Ready for login attempts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- File Management Tab -->
+                    <div class="tab-pane fade" id="files" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>File Operations</h4>
+                                <div class="mb-4">
+                                    <h5>Upload File</h5>
+                                    <form id="uploadForm">
+                                        <div class="mb-3">
+                                            <label for="fileUpload" class="form-label">Select file (any type)</label>
+                                            <input class="form-control" type="file" id="fileUpload">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                    </form>
+                                    <div class="mt-3" id="uploadProgress" style="display: none;">
+                                        <p>Encrypting and uploading file...</p>
+                                        <div class="progress progress-thin">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div id="uploadStatus"></div>
+                                </div>
+                                <div>
+                                    <h5>File Actions</h5>
+                                    <div id="fileActions" class="d-none">
+                                        <button class="btn btn-sm btn-success me-2" onclick="downloadSelectedFile()">Decrypt & Download</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteSelectedFile()">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Your Files</h4>
+                                <div id="fileList" class="list-group"></div>
+                                <div class="mt-3">
+                                    <h5>File System Structure</h5>
+                                    <div class="file-structure">
+                                        <pre>user_data/
+├── user1/
+│   ├── files/
+│   │   ├── doc1.any
+│   │   └── file2.any
+│   └── metadata.json
+└── admin/
+    ├── files/
+    │   ├── config.any
+    └── metadata.json</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Security Tab -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Security Operations</h4>
+                                <div class="mb-4">
+                                    <h5>Text Encryption & Decryption</h5>
+                                    <input type="text" id="textInput" class="form-control mb-2" placeholder="Enter text to encrypt">
+                                    <button class="btn btn-primary me-2" onclick="simulateTextEncryption()">Encrypt Text</button>
+                                    <input type="text" id="decryptTextInput" class="form-control mt-2 mb-2" placeholder="Enter encrypted text to decrypt">
+                                    <button class="btn btn-success" onclick="simulateTextDecryption()">Decrypt Text</button>
+                                    <p id="encryptedText" class="mt-2"></p>
+                                </div>
+                                <div>
+                                    <h5>Threat Detection</h5>
+                                    <button class="btn btn-primary" onclick="simulateMalwareScan()">Run Scan</button>
+                                    <button class="btn btn-warning mt-2" onclick="simulateSuspiciousActivity()">Simulate Attack</button>
+                                    <div id="malwareScanResult" class="mt-3"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Security Log</h4>
+                                <div id="securityLog" class="p-3 bg-light rounded" style="height: 300px; overflow-y: auto;">
+                                    <div class="log-entry">System: Security monitoring initialized</div>
+                                    <div class="log-entry success">System: All services running</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Performance Tab -->
+                    <div class="tab-pane fade" id="performance" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Performance Optimization</h4>
+                                <div class="mb-4">
+                                    <h5>Free Space Management</h5>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Used Space</span>
+                                            <span id="storageUsage">0%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" id="storageBar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <p>Bitmap-based allocation for efficient space management.</p>
+                                </div>
+                                <div>
+                                    <h5>System Recovery</h5>
+                                    <button class="btn btn-primary" onclick="simulateRecovery()">Simulate Recovery</button>
+                                    <div id="recoveryLog" class="mt-3"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Performance Metrics</h4>
+                                <div id="performanceMetrics">
+                                    <button class="btn btn-primary mb-3" onclick="runPerformanceTest()">Run Performance Test</button>
+                                    <div id="performanceResults"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">How It Works</h2>
+                <p class="lead text-muted">The technology behind the Secure File System</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">File Storage Architecture</h4>
+                            <p>Multi-layered architecture with:</p>
+                            <ul>
+                                <li>Encrypted file storage</li>
+                                <li>Access control</li>
+                                <li>Performance optimization</li>
+                                <li>Threat detection</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Encryption Process</h4>
+                            <p>Files are encrypted with AES-256:</p>
+                            <ol>
+                                <li>Upload file</li>
+                                <li>Generate encryption key</li>
+                                <li>Encrypt with AES-GCM</li>
+                                <li>Store encrypted data</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Threat Detection</h4>
+                            <p>Mechanisms include:</p>
+                            <ul>
+                                <li>File validation</li>
+                                <li>Activity monitoring</li>
+                                <li>Simulated malware scans</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Performance Optimization</h4>
+                            <p>Techniques used:</p>
+                            <ul>
+                                <li>Efficient allocation</li>
+                                <li>Caching</li>
+                                <li>Parallel processing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Secure File System</h5>
+                    <p>A secure and optimized file management solution.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#features" class="text-white">Features</a></li>
+                        <li><a href="#demo" class="text-white">Demo</a></li>
+                        <li><a href="#how-it-works" class="text-white">How It Works</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> gandranagasrinivasareddy@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p class="mb-0">© 2025 Secure File System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalLoginForm">
+                        <div class="mb-3">
+                            <label for="modalUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="modalUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="modalPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="mb-0">Don't have an account? <a href="#" onclick="showRegisterModal()">Register</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalRegisterForm">
+                        <div class="mb-3">
+                            <label for="regUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="regUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="regPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="regConfirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="mb-0">Already have an account? <a href="#" onclick="showLoginModal()">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize localStorage
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify({}));
+        }
+        if (!localStorage.getItem('files')) {
+            localStorage.setItem('files', JSON.stringify({}));
+        }
+        if (!localStorage.getItem('logs')) {
+            localStorage.setItem('logs', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('bitmap')) {
+            localStorage.setItem('bitmap', JSON.stringify(Array(1000).fill(0)));
+        }
+
+        // Input validation
+        function validateInput(data, maxLength = 100, allowFilename = false) {
+            if (!data || typeof data !== 'string' || !data.trim()) return [false, 'Invalid or empty input'];
+            if (data.length > maxLength) return [false, 'Input too long'];
+            if (!allowFilename) {
+                if (!/^[a-zA-Z0-9_@.-]+$/.test(data)) return [false, 'Invalid characters'];
+            } else {
+                if (/[<>\|;:]/.test(data)) return [false, 'Invalid filename characters'];
+            }
+            return [true, ''];
+        }
+
+        // Simulate ClamAV
+        function simulateClamAV(filename, data) {
+            if (!data || data.length === 0) return [false, 'Empty file detected'];
+            if (/\.(exe|bat|cmd|scr)$/i.test(filename)) return [false, 'Suspicious file extension'];
+            const entropy = [...new Set(data)].length / data.length;
+            if (entropy > 0.9) return [false, 'High entropy, potential malware'];
+            return [true, 'No threats detected'];
+        }
+
+        // Bitwise allocation
+        function allocateBlocks(size) {
+            const bitmap = JSON.parse(localStorage.getItem('bitmap'));
+            const blocksNeeded = Math.max(1, Math.ceil(size / 4096)); // 4KB per block
+            try {
+                for (let i = 0; i <= bitmap.length - blocksNeeded; i++) {
+                    if (bitmap.slice(i, i + blocksNeeded).every(b => b === 0)) {
+                        for (let j = i; j < i + blocksNeeded; j++) bitmap[j] = 1;
+                        localStorage.setItem('bitmap', JSON.stringify(bitmap));
+                        return Array.from({ length: blocksNeeded }, (_, k) => i + k);
+                    }
+                }
+                return null;
+            } catch (e) {
+                logAction('system', 'allocate_error', `Failed to allocate: ${e}`, 'danger');
+                return null;
+            }
+        }
+
+        function freeBlocks(blockIds) {
+            const bitmap = JSON.parse(localStorage.getItem('bitmap'));
+            try {
+                blockIds.forEach(bid => {
+                    if (bid >= 0 && bid < bitmap.length) bitmap[bid] = 0;
+                });
+                localStorage.setItem('bitmap', JSON.stringify(bitmap));
+            } catch (e) {
+                logAction('system', 'free_blocks_error', `Failed to free blocks: ${e}`, 'danger');
+            }
+        }
+
+        function calculateStorageUsage() {
+            const bitmap = JSON.parse(localStorage.getItem('bitmap'));
+            const used = bitmap.filter(b => b === 1).length;
+            const total = bitmap.length;
+            return ((used / total) * 100).toFixed(2);
+        }
+
+        // Simple client-side hashing
+        async function hashPassword(password) {
+            const msgBuffer = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Generate encryption key
+        async function generateKey() {
+            return await crypto.subtle.generateKey(
+                { name: "AES-GCM", length: 256 },
+                true,
+                ["encrypt", "decrypt"]
+            );
+        }
+
+        // Encrypt file data
+        async function encryptFile(fileData) {
+            const key = await generateKey();
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encodedData = new TextEncoder().encode(fileData);
+            const encrypted = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: iv },
+                key,
+                encodedData
+            );
+            return { encrypted, iv, key };
+        }
+
+        // Decrypt file data
+        async function decryptFile(encrypted, iv, key) {
+            try {
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: "AES-GCM", iv: iv },
+                    key,
+                    encrypted
+                );
+                return new TextDecoder().decode(decrypted);
+            } catch (e) {
+                logAction('system', 'decrypt_error', `Decryption failed: ${e}`, 'danger');
+                return null;
+            }
+        }
+
+        // Simulate text encryption (base64 for demo)
+        function simulateTextEncrypt(data) {
+            return btoa(data);
+        }
+
+        // Simulate text decryption (base64 for demo)
+        function simulateTextDecrypt(data) {
+            try {
+                return atob(data);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Convert ArrayBuffer to base64
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        // Convert base64 to ArrayBuffer
+        function base64ToArrayBuffer(base64) {
+            const binary = atob(base64);
+            const len = binary.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        // Log action
+        function logAction(username, action, details, type = 'info') {
+            const logs = JSON.parse(localStorage.getItem('logs'));
+            logs.push({
+                timestamp: new Date().toLocaleString(),
+                username,
+                action,
+                details,
+                type
+            });
+            localStorage.setItem('logs', JSON.stringify(logs));
+            addLogEntry('securityLog', `${action}: ${details}`, type);
+        }
+
+        // Update navigation
+        function updateNav() {
+            const isLoggedIn = localStorage.getItem('currentUser');
+            const authButtons = document.getElementById('auth-buttons');
+            if (isLoggedIn) {
+                authButtons.innerHTML = `
+                    <button class="btn btn-outline-light me-2" onclick="showDashboard()">Dashboard</button>
+                    <button class="btn btn-primary" onclick="logout()">Logout</button>
+                `;
+                document.getElementById('fileUpload').disabled = false;
+            } else {
+                authButtons.innerHTML = `
+                    <button class="btn btn-outline-light me-2" onclick="showLoginModal()">Login</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">Register</button>
+                `;
+                document.getElementById('fileUpload').disabled = true;
+            }
+            updateFileList();
+            updateStorageBar();
+        }
+
+        // Update storage bar
+        function updateStorageBar() {
+            const usage = calculateStorageUsage();
+            const storageBar = document.getElementById('storageBar');
+            const storageUsage = document.getElementById('storageUsage');
+            storageBar.style.width = `${usage}%`;
+            storageUsage.textContent = `${usage}%`;
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('files-tab').click();
+            updateFileList();
+        }
+
+        // Logout
+        function logout() {
+            const username = localStorage.getItem('currentUser');
+            logAction(username, 'logout', 'User logged out', 'success');
+            localStorage.removeItem('currentUser');
+            updateNav();
+            document.getElementById('auth-tab').click();
+        }
+
+        // Show modals
+        function showLoginModal() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+        }
+
+        function showRegisterModal() {
+            const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+            modal.show();
+        }
+
+        // Handle register
+        document.getElementById('modalRegisterForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            const [validUsername, msgUsername] = validateInput(username);
+            if (!validUsername) {
+                alert(msgUsername);
+                logAction('unknown', 'register_failed', `Invalid username: ${msgUsername}`, 'danger');
+                return;
+            }
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            if (username.length < 3 || password.length < 6) {
+                alert('Username must be 3+ characters, password 6+ characters.');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            if (users[username]) {
+                alert('Username already exists.');
+                return;
+            }
+
+            users[username] = await hashPassword(password);
+            localStorage.setItem('users', JSON.stringify(users));
+            logAction(username, 'register', 'User registered', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+            showLoginModal();
+        });
+
+        // Handle login
+        document.getElementById('modalLoginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('modalUsername').value.trim();
+            const password = document.getElementById('modalPassword').value;
+
+            const [validUsername, msgUsername] = validateInput(username);
+            if (!validUsername) {
+                alert(msgUsername);
+                logAction('unknown', 'login_failed', `Invalid username: ${msgUsername}`, 'danger');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            const hashedPassword = await hashPassword(password);
+
+            if (users[username] && users[username] === hashedPassword) {
+                localStorage.setItem('currentUser', username);
+                logAction(username, 'login', 'User logged in', 'success');
+                updateNav();
+                bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                showDashboard();
+            } else {
+                alert('Invalid username or password.');
+                logAction('unknown', 'login_failed', 'Invalid login attempt', 'danger');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('demoUsername').value.trim();
+            const password = document.getElementById('demoPassword').value;
+
+            const [validUsername, msgUsername] = validateInput(username);
+            if (!validUsername) {
+                addLogEntry('authLog', `Invalid username: ${msgUsername}`, 'danger');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            const hashedPassword = await hashPassword(password);
+
+            if (users[username] && users[username] === hashedPassword) {
+                localStorage.setItem('currentUser', username);
+                logAction(username, 'login', 'User logged in', 'success');
+                updateNav();
+                showDashboard();
+            } else {
+                addLogEntry('authLog', 'Invalid username or password', 'danger');
+            }
+        });
+
+        // File upload with encryption
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileUpload');
+            const file = fileInput.files[0];
+            const username = localStorage.getItem('currentUser');
+
+            if (!username) {
+                alert('Please log in to upload files.');
+                return;
+            }
+            if (!file) {
+                alert('Please select a file.');
+                return;
+            }
+            if (file.size === 0) {
+                alert('File is empty.');
+                logAction(username, 'upload_failed', 'Empty file uploaded', 'danger');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File too large. Max size: 5MB.');
+                logAction(username, 'upload_failed', `File too large: ${file.size} bytes`, 'danger');
+                return;
+            }
+
+            const [validFilename, msgFilename] = validateInput(file.name, 100, true);
+            if (!validFilename) {
+                alert(msgFilename);
+                logAction(username, 'upload_failed', `Invalid filename: ${msgFilename}`, 'danger');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const fileData = e.target.result;
+                    const [scanOk, scanMsg] = simulateClamAV(file.name, fileData);
+                    if (!scanOk) {
+                        alert(`Threat detected: ${scanMsg}`);
+                        logAction(username, 'upload_failed', `Threat in ${file.name}: ${scanMsg}`, 'danger');
+                        return;
+                    }
+
+                    const blockIds = allocateBlocks(file.size);
+                    if (!blockIds) {
+                        alert('No free space available.');
+                        logAction(username, 'upload_failed', 'No free space', 'danger');
+                        return;
+                    }
+
+                    const { encrypted, iv, key } = await encryptFile(fileData);
+                    const encryptedBase64 = arrayBufferToBase64(encrypted);
+                    const ivBase64 = arrayBufferToBase64(iv);
+                    const exportedKey = await crypto.subtle.exportKey("jwk", key);
+
+                    const files = JSON.parse(localStorage.getItem('files'));
+                    const fileKey = `${username}_${file.name}_${Date.now()}`;
+                    files[fileKey] = {
+                        name: file.name,
+                        encryptedData: encryptedBase64,
+                        iv: ivBase64,
+                        key: exportedKey,
+                        type: file.type || 'application/octet-stream',
+                        size: formatFileSize(file.size),
+                        date: new Date().toISOString().split('T')[0],
+                        created: new Date().toISOString(),
+                        accessed: new Date().toISOString(),
+                        owner: username,
+                        isEncrypted: true,
+                        blockIds
+                    };
+                    localStorage.setItem('files', JSON.stringify(files));
+
+                    const progressBar = document.querySelector('#uploadProgress .progress-bar');
+                    const uploadProgress = document.getElementById('uploadProgress');
+                    uploadProgress.style.display = 'block';
+                    progressBar.style.width = '0%';
+
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 20;
+                        progressBar.style.width = `${progress}%`;
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            uploadProgress.style.display = 'none';
+                            document.getElementById('uploadStatus').innerHTML = `
+                                <div class="alert alert-success">File "${file.name}" uploaded and encrypted with AES-256!</div>
+                            `;
+                            logAction(username, 'upload', `File uploaded and encrypted: ${file.name}`, 'success');
+                            updateFileList();
+                            updateStorageBar();
+                            fileInput.value = '';
+                            setTimeout(() => {
+                                document.getElementById('uploadStatus').innerHTML = '';
+                            }, 3000);
+                        }
+                    }, 200);
+                } catch (err) {
+                    alert('Encryption failed. Please try again.');
+                    logAction(username, 'upload_failed', `Encryption error: ${err.message}`, 'danger');
+                }
+            };
+            reader.onerror = function() {
+                alert('Error reading file.');
+                logAction(username, 'upload_failed', 'File read error', 'danger');
+            };
+            reader.readAsBinaryString(file);
+        });
+
+        // Update file list
+        function updateFileList() {
+            const username = localStorage.getItem('currentUser');
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            if (!username) {
+                fileList.innerHTML = '<div class="list-group-item">Log in to view files</div>';
+                return;
+            }
+
+            const files = JSON.parse(localStorage.getItem('files'));
+            const userFiles = Object.keys(files).filter(key => files[key].owner === username);
+
+            if (userFiles.length === 0) {
+                fileList.innerHTML = '<div class="list-group-item">No files uploaded yet</div>';
+                return;
+            }
+
+            userFiles.forEach(key => {
+                const file = files[key];
+                const fileItem = document.createElement('div');
+                fileItem.className = 'list-group-item list-group-item-action';
+                fileItem.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-1">${file.name} ${file.isEncrypted ? '<i class="fas fa-lock"></i>' : ''}</h6>
+                            <small class="text-muted">${file.size} - ${file.date}</small>
+                        </div>
+                        <div>
+                            <input type="radio" name="selectedFile" value="${key}" onchange="toggleFileActions()">
+                        </div>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Toggle file actions
+        function toggleFileActions() {
+            const fileActions = document.getElementById('fileActions');
+            const selectedFile = document.querySelector('input[name="selectedFile"]:checked');
+            fileActions.classList.toggle('d-none', !selectedFile);
+        }
+
+        // Download file
+        async function downloadSelectedFile() {
+            const selectedFileKey = document.querySelector('input[name="selectedFile"]:checked').value;
+            const files = JSON.parse(localStorage.getItem('files'));
+            const file = files[selectedFileKey];
+
+            if (file) {
+                try {
+                    const encryptedBuffer = base64ToArrayBuffer(file.encryptedData);
+                    const ivBuffer = base64ToArrayBuffer(file.iv);
+                    const key = await crypto.subtle.importKey(
+                        "jwk",
+                        file.key,
+                        { name: "AES-GCM" },
+                        false,
+                        ["decrypt"]
+                    );
+                    const decryptedData = await decryptFile(encryptedBuffer, ivBuffer, key);
+                    if (!decryptedData) {
+                        alert('Decryption failed.');
+                        logAction(localStorage.getItem('currentUser'), 'download_failed', `Decryption error for: ${file.name}`, 'danger');
+                        return;
+                    }
+
+                    file.accessed = new Date().toISOString();
+                    localStorage.setItem('files', JSON.stringify(files));
+
+                    const blob = new Blob([decryptedData], { type: file.type });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.name;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    logAction(localStorage.getItem('currentUser'), 'download', `File decrypted and downloaded: ${file.name}`, 'success');
+                } catch (err) {
+                    alert('Error downloading file.');
+                    logAction(localStorage.getItem('currentUser'), 'download_failed', `Download error: ${err.message}`, 'danger');
+                }
+            }
+        }
+
+        // Delete file
+        function deleteSelectedFile() {
+            const selectedFileKey = document.querySelector('input[name="selectedFile"]:checked').value;
+            const files = JSON.parse(localStorage.getItem('files'));
+            const file = files[selectedFileKey];
+
+            if (file) {
+                freeBlocks(file.blockIds);
+                delete files[selectedFileKey];
+                localStorage.setItem('files', JSON.stringify(files));
+                logAction(localStorage.getItem('currentUser'), 'delete', `File deleted: ${file.name}`, 'success');
+                updateFileList();
+                updateStorageBar();
+                document.getElementById('fileActions').classList.add('d-none');
+            }
+        }
+
+        // Simulate text encryption
+        function simulateTextEncryption() {
+            const textInput = document.getElementById('textInput').value;
+            const username = localStorage.getItem('currentUser') || 'guest';
+            if (!textInput) {
+                document.getElementById('encryptedText').innerHTML = '<div class="alert alert-info">Text encryption is optional. Enter text to encrypt.</div>';
+                return;
+            }
+
+            const [validText, msgText] = validateInput(textInput, 1000);
+            if (!validText) {
+                document.getElementById('encryptedText').innerHTML = `<div class="alert alert-danger">${msgText}</div>`;
+                logAction(username, 'text_encrypt_failed', `Invalid text: ${msgText}`, 'danger');
+                return;
+            }
+
+            const encrypted = simulateTextEncrypt(textInput);
+            document.getElementById('encryptedText').innerHTML = `
+                <div class="alert alert-success">Encrypted Text: ${encrypted}</div>
+            `;
+            logAction(username, 'text_encrypt', 'Text encrypted', 'success');
+        }
+
+        // Simulate text decryption
+        function simulateTextDecryption() {
+            const textInput = document.getElementById('decryptTextInput').value;
+            const username = localStorage.getItem('currentUser') || 'guest';
+            if (!textInput) {
+                document.getElementById('encryptedText').innerHTML = '<div class="alert alert-info">Enter encrypted text to decrypt.</div>';
+                return;
+            }
+
+            const decrypted = simulateTextDecrypt(textInput);
+            if (!decrypted) {
+                document.getElementById('encryptedText').innerHTML = '<div class="alert alert-danger">Decryption failed: Invalid encrypted text.</div>';
+                logAction(username, 'text_decrypt_failed', 'Invalid encrypted text', 'danger');
+                return;
+            }
+
+            document.getElementById('encryptedText').innerHTML = `
+                <div class="alert alert-success">Decrypted Text: ${decrypted}</div>
+            `;
+            logAction(username, 'text_decrypt', 'Text decrypted', 'success');
+        }
+
+        // Simulate malware scan
+        function simulateMalwareScan() {
+            const malwareScanResult = document.getElementById('malwareScanResult');
+            malwareScanResult.innerHTML = '<div class="alert alert-info">Scanning files...</div>';
+
+            setTimeout(() => {
+                const isInfected = Math.random() > 0.8;
+                if (isInfected) {
+                    malwareScanResult.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h5>Malware Detected!</h5>
+                            <p>File contains suspicious content.</p>
+                        </div>
+                    `;
+                    logAction('system', 'malware_scan', 'Malware detected', 'danger');
+                } else {
+                    malwareScanResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <h5>Scan Complete</h5>
+                            <p>No threats detected.</p>
+                        </div>
+                    `;
+                    logAction('system', 'malware_scan', 'No threats found', 'success');
+                }
+            }, 2000);
+        }
+
+        // Simulate suspicious activity
+        function simulateSuspiciousActivity() {
+            addLogEntry('securityLog', 'Multiple failed login attempts detected', 'warning');
+            setTimeout(() => {
+                addLogEntry('securityLog', 'Suspicious activity blocked', 'danger');
+            }, 1000);
+        }
+
+        // Simulate recovery
+        function simulateRecovery() {
+            const recoveryLog = document.getElementById('recoveryLog');
+            recoveryLog.innerHTML = '<div class="alert alert-info">Initiating recovery...</div>';
+
+            setTimeout(() => {
+                recoveryLog.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>Recovery Complete</h5>
+                        <p>System restored to stable state.</p>
+                    </div>
+                `;
+                logAction('system', 'recovery', 'System recovery completed', 'success');
+            }, 2000);
+        }
+
+        // Run performance test
+        function runPerformanceTest() {
+            const performanceResults = document.getElementById('performanceResults');
+            performanceResults.innerHTML = `
+                <div class="alert alert-info">
+                    <h5>Running Performance Tests...</h5>
+                    <div class="progress progress-thin mt-2">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                performanceResults.innerHTML = `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Performance Results</h5>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Operation</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>File Read (1MB)</td><td>12ms</td></tr>
+                                    <tr><td>File Write (1MB)</td><td>18ms</td></tr>
+                                    <tr><td>Encryption</td><td>25ms</td></tr>
+                                    <tr><td>Directory Listing</td><td>8ms</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="alert alert-success">
+                        Performance optimized for fast access
+                    </div>
+                `;
+                logAction('system', 'performance_test', 'Performance test completed', 'success');
+            }, 2000);
+        }
+
+        // Add log entry
+        function addLogEntry(logId, message, type) {
+            const log = document.getElementById(logId);
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.crypto || !window.crypto.subtle) {
+                alert('Web Crypto API not supported in this browser. Please use a modern browser like Chrome.');
+            }
+            updateNav();
+            updateFileList();
+            updateStorageBar();
+
+            // Admin logs access
+            document.getElementById('security-tab').addEventListener('click', function() {
+                const username = localStorage.getItem('currentUser');
+                if (username === 'admin') {
+                    const logs = JSON.parse(localStorage.getItem('logs'));
+                    const securityLog = document.getElementById('securityLog');
+                    securityLog.innerHTML = '';
+                    logs.forEach(log => {
+                        addLogEntry('securityLog', `${log.action} by ${log.username}: ${log.details}`, log.type);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

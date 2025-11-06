@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureFS Pro - Advanced File Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --dark-color: #5a5c69;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --text-light: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: white;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.3);
+            color: var(--text-light);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+            color: #000;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .demo-container {
+            background-color: var(--card-bg);
+            border-radius: 0.35rem;
+            padding: 2rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+            border: 1px solid #333;
+        }
+
+        .log-entry {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-entry.warning {
+            border-left-color: var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        .log-entry.danger {
+            border-left-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .log-entry.success {
+            border-left-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        #fileList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .progress-thin {
+            height: 5px;
+            background-color: #333;
+        }
+
+        .progress-thin .progress-bar {
+            background-color: var(--primary-color);
+        }
+
+        .encryption-animation {
+            position: relative;
+            overflow: hidden;
+            background-color: var(--card-bg);
+            height: 300px;
+            border-radius: 0.35rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            border: 1px solid #333;
+        }
+
+        .encryption-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(78, 115, 223, 0.1),
+                rgba(78, 115, 223, 0.1) 10px,
+                rgba(78, 115, 223, 0.2) 10px,
+                rgba(78, 115, 223, 0.2) 20px
+            );
+            background-size: 28px 28px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 28px 0;
+            }
+        }
+
+        .workflow-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 1px solid #333;
+        }
+
+        .workflow-step {
+            background: #252525;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4e9af1;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .workflow-step.active {
+            background: #2a3a4a;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .workflow-step.completed {
+            background: #1e2a1e;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .workflow-arrow {
+            text-align: center;
+            color: #4e9af1;
+            font-size: 20px;
+            margin: 5px 0;
+        }
+
+        .file-structure {
+            font-family: monospace;
+            background: #252525;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            color: var(--text-light);
+        }
+
+        .file-structure-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.35rem;
+            border: 1px solid #333;
+        }
+
+        .file-item {
+            background: #252525;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background: #2a2a2a;
+        }
+
+        .form-control, .form-select {
+            background-color: #252525;
+            border: 1px solid #333;
+            color: var(--text-light);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #252525;
+            color: var(--text-light);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+        }
+
+        .list-group-item {
+            background-color: #252525;
+            color: var(--text-light);
+            border: 1px solid #333;
+        }
+
+        .list-group-item-action:hover {
+            background-color: #2a2a2a;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-light);
+            background-color: #252525;
+            border: 1px solid #333;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background-color: var(--card-bg);
+            border-bottom-color: var(--card-bg);
+            font-weight: bold;
+        }
+
+        .alert {
+            background-color: #252525;
+            border: 1px solid #333;
+            color: var(--text-light);
+        }
+
+        .alert-info {
+            border-left: 3px solid #17a2b8;
+        }
+
+        .alert-success {
+            border-left: 3px solid var(--secondary-color);
+        }
+
+        .alert-danger {
+            border-left: 3px solid var(--danger-color);
+        }
+
+        .alert-warning {
+            border-left: 3px solid var(--warning-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">SecureFS Pro</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#recovery">Recovery</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light me-2" onclick="showLoginModal()">Login</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">Register</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-dark text-white py-5 mb-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-3">Secure & Optimized File Management</h1>
+                    <p class="lead mb-4">Advanced file system with encryption, threat detection, performance optimization, and recovery capabilities for your critical data.</p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-primary btn-lg px-4" onclick="document.getElementById('demo').scrollIntoView()">See Demo</button>
+                        <button class="btn btn-outline-light btn-lg px-4" onclick="document.getElementById('how-it-works').scrollIntoView()">Learn More</button>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="encryption-animation">
+                        <div class="encryption-overlay"></div>
+                        <i class="fas fa-lock fa-4x mb-3 text-primary"></i>
+                        <h3>Files Secured with AES-256</h3>
+                        <p class="text-muted">All files are encrypted before storage</p>
+                        <div class="progress progress-thin w-75 mt-3">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+        <!-- Features Section -->
+        <section id="features" class="py-5 bg-dark">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold">System Features</h2>
+                    <p class="lead text-muted">Comprehensive security and optimization for your files</p>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <h5 class="card-title">Secure Authentication</h5>
+                                <p class="card-text text-muted">
+                                    Password hashing with PBKDF2/bcrypt and optional two-factor authentication (2FA) via email or TOTP.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <h5 class="card-title">File Encryption</h5>
+                                <p class="card-text text-muted">
+                                    AES-256 encryption for all stored files with secure key management using HSM or software vaults.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                </div>
+                                <h5 class="card-title">Performance Optimization</h5>
+                                <p class="card-text text-muted">
+                                    Bitmap and indexed allocation, caching, read-ahead techniques, and parallel processing for fast access.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <h5 class="card-title">Threat Detection</h5>
+                                <p class="card-text text-muted">
+                                    Malware scanning with ClamAV, heuristic analysis, and suspicious activity monitoring.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Additional Feature Cards -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <h5 class="card-title">Version Control</h5>
+                                <p class="card-text text-muted">
+                                    Automatic versioning of files with configurable retention policies and easy rollback.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <h5 class="card-title">Data Recovery</h5>
+                                <p class="card-text text-muted">
+                                    Journaling, checkpointing, and snapshot recovery to protect against data loss.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h5 class="card-title">Analytics</h5>
+                                <p class="card-text text-muted">
+                                    Comprehensive usage statistics and access patterns for better resource management.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="feature-icon">
+                                    <i class="fas fa-users-cog"></i>
+                                </div>
+                                <h5 class="card-title">Access Control</h5>
+                                <p class="card-text text-muted">
+                                    Fine-grained RBAC (Role-Based Access Control) with customizable permission sets.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+            <!-- Demo Section -->
+    <section id="demo" class="py-5 bg-dark">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Interactive Demo</h2>
+                <p class="lead text-muted">Experience the system's key features</p>
+            </div>
+            
+            <div class="demo-container">
+                <ul class="nav nav-tabs" id="demoTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="auth-tab" data-bs-toggle="tab" data-bs-target="#auth" type="button">Authentication</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button">File Management</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button">Security</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance" type="button">Performance</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="recovery-tab" data-bs-toggle="tab" data-bs-target="#recovery" type="button">Recovery</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="demoTabsContent">
+                    <!-- Authentication Tab -->
+                    <div class="tab-pane fade show active" id="auth" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Secure Login System</h4>
+                                <p>Try logging in with these demo credentials:</p>
+                                <ul>
+                                    <li>Regular user: <code>user1 / password123</code></li>
+                                    <li>Admin user: <code>admin / admin123</code></li>
+                                </ul>
+                                
+                                <form id="loginForm" class="mb-4">
+                                    <div class="mb-3">
+                                        <label for="demoUsername" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="demoUsername" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="demoPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="demoPassword" required>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="demoRemember">
+                                        <label class="form-check-label" for="demoRemember">Remember me</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Login</button>
+                                    <button type="button" class="btn btn-secondary ms-2" onclick="showRegisterModal()">Register</button>
+                                </form>
+                                
+                                <div class="alert alert-info">
+                                    <h5>Security Features:</h5>
+                                    <ul>
+                                        <li>Password hashing with PBKDF2</li>
+                                        <li>Brute-force protection with rate limiting</li>
+                                        <li>Optional 2FA available</li>
+                                        <li>Session timeout enforcement</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Authentication Log</h4>
+                                <div id="authLog" class="p-3 bg-dark rounded" style="height: 300px; overflow-y: auto;">
+                                    <div class="log-entry">
+                                        <strong>System:</strong> Authentication service initialized
+                                    </div>
+                                    <div class="log-entry success">
+                                        <strong>System:</strong> Ready for login attempts
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- File Management Tab -->
+                    <div class="tab-pane fade" id="files" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>File Operations</h4>
+                                <div class="mb-4">
+                                    <h5>Upload File</h5>
+                                    <form id="uploadForm">
+                                        <div class="mb-3">
+                                            <label for="fileUpload" class="form-label">Select file</label>
+                                            <input class="form-control" type="file" id="fileUpload" disabled>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="textToEncrypt" class="form-label">Or enter text to encrypt</label>
+                                            <textarea class="form-control" id="textToEncrypt" rows="3" disabled></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary" disabled>Encrypt & Upload</button>
+                                    </form>
+                                    
+                                    <div class="mt-3" id="uploadProgress" style="display: none;">
+                                        <p>Encrypting and uploading file...</p>
+                                        <div class="progress progress-thin">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h5>File Actions</h5>
+                                    <div id="fileActions" class="d-none">
+                                        <button class="btn btn-sm btn-success me-2" onclick="downloadSelectedFile()">Download</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteSelectedFile()">Delete</button>
+                                        <button class="btn btn-sm btn-info" onclick="showFileVersions()">Versions</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Your Files</h4>
+                                <div id="fileList" class="list-group">
+                                    <div class="list-group-item">Please login to view your files</div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <h5>File System Structure</h5>
+                                    <div class="file-structure">
+                                        <pre>user_data/
+├── user1/
+│   ├── files/
+│   │   ├── encrypted_document1.enc
+│   │   └── encrypted_report.enc
+│   ├── versions/
+│   │   ├── document1_v1.enc
+│   │   └── document1_v2.enc
+│   └── metadata.json
+└── admin/
+    ├── files/
+    │   ├── encrypted_config.enc
+    │   └── encrypted_backup.enc
+    └── metadata.json</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Tab -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Threat Detection</h4>
+                                <div class="mb-4">
+                                    <h5>Malware Scanning</h5>
+                                    <p>All uploaded files are scanned for malware using signature-based detection and heuristic analysis.</p>
+                                    <button class="btn btn-primary" onclick="simulateMalwareScan()">Run Scan Demo</button>
+                                    <button class="btn btn-warning ms-2" onclick="simulateSuspiciousActivity()">Simulate Attack</button>
+                                    
+                                    <div id="malwareScanResult" class="mt-3"></div>
+                                </div>
+                                
+                                <div>
+                                    <h5>Security Settings</h5>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="enable2FA">
+                                        <label class="form-check-label" for="enable2FA">Enable Two-Factor Authentication</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="enableBruteForceProtection" checked>
+                                        <label class="form-check-label" for="enableBruteForceProtection">Enable Brute Force Protection</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="enableAutoUpdates" checked>
+                                        <label class="form-check-label" for="enableAutoUpdates">Enable Automatic Security Updates</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Security Log</h4>
+                                <div id="securityLog" class="p-3 bg-dark rounded" style="height: 400px; overflow-y: auto;">
+                                    <div class="log-entry">
+                                        <strong>System:</strong> Security monitoring initialized
+                                    </div>
+                                    <div class="log-entry success">
+                                        <strong>System:</strong> All services running with latest security patches
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Tab -->
+                    <div class="tab-pane fade" id="performance" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Performance Optimization</h4>
+                                <div class="mb-4">
+                                    <h5>Free Space Management</h5>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Used Space</span>
+                                            <span>65%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <p>The system uses bitmap-based allocation for efficient space management with minimal fragmentation.</p>
+                                </div>
+                                
+                                <div>
+                                    <h5>Access Optimization</h5>
+                                    <p>Techniques used to improve performance:</p>
+                                    <ul>
+                                        <li>Caching of frequently accessed files</li>
+                                        <li>Read-ahead for sequential access patterns</li>
+                                        <li>Indexed allocation for fast random access</li>
+                                        <li>Parallel processing for large operations</li>
+                                    </ul>
+                                    <button class="btn btn-primary" onclick="runPerformanceTest()">Run Performance Test</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Performance Metrics</h4>
+                                <div id="performanceMetrics">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title">File Access Times</h5>
+                                            <div class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <p class="mt-2">Run performance test to see metrics</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Throughput Comparison</h5>
+                                            <div class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <p class="mt-2">Run performance test to see metrics</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recovery Tab -->
+                    <div class="tab-pane fade" id="recovery" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>System Recovery</h4>
+                                <div class="mb-4">
+                                    <h5>Backup & Restore</h5>
+                                    <p>Create system backups or restore from previous checkpoints.</p>
+                                    <button class="btn btn-primary" onclick="createBackup()">Create Backup</button>
+                                    <button class="btn btn-success ms-2" onclick="restoreSystem()">Restore System</button>
+                                </div>
+                                
+                                <div>
+                                    <h5>File Versioning</h5>
+                                    <p>Recover previous versions of your files:</p>
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" placeholder="Search files..." id="versionSearch">
+                                        <button class="btn btn-outline-secondary" type="button">Search</button>
+                                    </div>
+                                    <div id="versionResults" class="alert alert-info">
+                                        Please login and select a file to view versions
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Recovery Log</h4>
+                                <div id="recoveryLog" class="p-3 bg-dark rounded" style="height: 400px; overflow-y: auto;">
+                                    <div class="log-entry">
+                                        <strong>System:</strong> Recovery services initialized
+                                    </div>
+                                    <div class="log-entry success">
+                                        <strong>System:</strong> Last backup: 2023-06-20 14:30:45
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="py-5 bg-dark">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold">How It Works</h2>
+                    <p class="lead text-muted">The technology behind the Secure File System</p>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">File Storage Architecture</h4>
+                                <img src="https://www.ntfs.com/images/ntfs-architecture.gif" alt="File Storage Architecture" class="file-structure-img mb-3">
+                                <p>The system uses a multi-layered architecture with:</p>
+                                <ul>
+                                    <li>Encrypted file storage at the core</li>
+                                    <li>Access control middleware</li>
+                                    <li>Performance optimization layer</li>
+                                    <li>Threat detection services</li>
+                                    <li>User interface and API layer</li>
+                                    <li>Recovery and versioning subsystem</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Encryption Process</h4>
+                                <img src="https://www.researchgate.net/publication/338487142/figure/fig1/AS:842021079220224@1577723253210/Data-Encryption-Standard-DES-algorithm.png" alt="Encryption Process" class="file-structure-img mb-3">
+                                <p>Files are encrypted using AES-256 with the following process:</p>
+                                <ol>
+                                    <li>User uploads file through secure channel</li>
+                                    <li>System generates unique encryption key</li>
+                                    <li>File is encrypted in memory</li>
+                                    <li>Encrypted file is stored with metadata</li>
+                                    <li>Encryption key is securely stored</li>
+                                    <li>Version is created if versioning enabled</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Threat Detection</h4>
+                                <img src="https://www.researchgate.net/publication/334632709/figure/fig3/AS:783989736955906@1564010849943/Threat-detection-rate-comparison-between-the-proposed-method-and-the-traditional-method.png" alt="Threat Detection" class="file-structure-img mb-3">
+                                <p>The system employs multiple threat detection mechanisms:</p>
+                                <ul>
+                                    <li>Real-time malware scanning</li>
+                                    <li>Behavioral analysis of file operations</li>
+                                    <li>Network traffic monitoring</li>
+                                    <li>Anomaly detection for user activities</li>
+                                    <li>Regular security audits</li>
+                                    <li>Automated threat response</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="card-title">Performance Optimization</h4>
+                                <img src="https://www.researchgate.net/publication/334632709/figure/fig4/AS:783989736955907@1564010849970/Performance-comparison-between-the-proposed-method-and-the-traditional-method.png" alt="Performance Optimization" class="file-structure-img mb-3">
+                                <p>Key performance optimization techniques:</p>
+                                <ul>
+                                    <li>Efficient file allocation strategies</li>
+                                    <li>Intelligent caching mechanisms</li>
+                                    <li>Parallel processing of operations</li>
+                                    <li>Compression for storage and transfer</li>
+                                    <li>Load balancing for concurrent access</li>
+                                    <li>Predictive read-ahead</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="workflow-container mt-5">
+                    <h2 class="text-center">System Workflow Demonstration</h2>
+                    <div id="workflowDemo">
+                        <div class="workflow-step" id="step1">
+                            <h4>User Authentication</h4>
+                            <p>Secure login with PBKDF2 password hashing and optional 2FA</p>
+                        </div>
+                        <div class="workflow-arrow">↓</div>
+                        <div class="workflow-step" id="step2">
+                            <h4>Access Control Verification</h4>
+                            <p>Role-based access control (RBAC) validation</p>
+                        </div>
+                        <div class="workflow-arrow">↓</div>
+                        <div class="workflow-step" id="step3">
+                            <h4>File Management Operations</h4>
+                            <p>Encrypted file operations with metadata tracking</p>
+                        </div>
+                        <div class="workflow-arrow">↓</div>
+                        <div class="workflow-step" id="step4">
+                            <h4>Performance Optimization</h4>
+                            <p>Caching, parallel processing, and space management</p>
+                        </div>
+                        <div class="workflow-arrow">↓</div>
+                        <div class="workflow-step" id="step5">
+                            <h4>Threat Detection</h4>
+                            <p>Real-time monitoring and malware scanning</p>
+                        </div>
+                        <div class="workflow-arrow">↓</div>
+                        <div class="workflow-step" id="step6">
+                            <h4>Data Recovery</h4>
+                            <p>Journaling, checkpointing, and snapshot recovery</p>
+                        </div>
+                        <div class="workflow-arrow">↓</div>
+                        <div class="workflow-step" id="step7">
+                            <h4>Audit & Reporting</h4>
+                            <p>Comprehensive logging and analysis</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-primary" onclick="startWorkflowDemo()">Start Workflow Demonstration</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    
+        <!-- Footer -->
+        <footer class="bg-darker text-white py-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>SecureFS Pro</h5>
+                        <p>A secure and optimized file management solution for modern organizations.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Quick Links</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="#features" class="text-white">Features</a></li>
+                            <li><a href="#demo" class="text-white">Demo</a></li>
+                            <li><a href="#how-it-works" class="text-white">How It Works</a></li>
+                            <li><a href="#recovery" class="text-white">Recovery</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Contact</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-envelope me-2"></i> support@securefspro.com</li>
+                            <li><i class="fas fa-phone me-2"></i> (123) 456-7890</li>
+                            <li><i class="fas fa-map-marker-alt me-2"></i> 123 Security Ave, Data City</li>
+                        </ul>
+                    </div>
+                </div>
+                <hr class="my-4 bg-light">
+                <div class="text-center">
+                    <p class="mb-0">&copy; 2023 SecureFS Pro. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    
+        <!-- Modals -->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Login</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="modalLoginForm">
+                            <div class="mb-3">
+                                <label for="modalUsername" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="modalUsername" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="modalPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="modalPassword" required>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="modalRemember">
+                                <label class="form-check-label" for="modalRemember">Remember me</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <p class="mb-0">Don't have an account? <a href="#" onclick="showRegisterModal()">Register</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Register</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="modalRegisterForm">
+                            <div class="mb-3">
+                                <label for="regUsername" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="regUsername" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="regPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="regPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="regConfirmPassword" required>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="regTerms">
+                                <label class="form-check-label" for="regTerms">I agree to the terms and conditions</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Register</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <p class="mb-0">Already have an account? <a href="#" onclick="showLoginModal()">Login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="modal fade" id="versionsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header">
+                        <h5 class="modal-title">File Versions</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="versionsList" class="list-group">
+                            <div class="list-group-item bg-secondary">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6>document.pdf - Version 3</h6>
+                                        <small>2023-06-20 14:30:45 - 2.1 MB</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-success">Restore</button>
+                                        <button class="btn btn-sm btn-info">Preview</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item bg-secondary">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6>document.pdf - Version 2</h6>
+                                        <small>2023-06-18 09:15:22 - 2.0 MB</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-success">Restore</button>
+                                        <button class="btn btn-sm btn-info">Preview</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item bg-secondary">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6>document.pdf - Version 1</h6>
+                                        <small>2023-06-15 16:45:10 - 1.8 MB</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-success">Restore</button>
+                                        <button class="btn btn-sm btn-info">Preview</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Demo users
+            const demoUsers = {
+                'user1': { password: 'password123', isAdmin: false },
+                'admin': { password: 'admin123', isAdmin: true }
+            };
+    
+            // Current user state
+            let currentUser = null;
+            let files = [];
+            let workflowInterval;
+            let currentStep = 0;
+    
+            // DOM ready
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize tabs
+                const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
+                tabEls.forEach(tabEl => {
+                    tabEl.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        const tabTarget = this.getAttribute('data-bs-target');
+                        const tabPane = document.querySelector(tabTarget);
+                        const activeTabPanes = document.querySelectorAll('.tab-pane.show.active');
+                        activeTabPanes.forEach(pane => {
+                            pane.classList.remove('show', 'active');
+                        });
+                        tabPane.classList.add('show', 'active');
+                        
+                        const activeTabs = document.querySelectorAll('.nav-link.active');
+                        activeTabs.forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    });
+                });
+                
+                // Form submissions
+                document.getElementById('loginForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const username = document.getElementById('demoUsername').value;
+                    const password = document.getElementById('demoPassword').value;
+                    handleLogin(username, password);
+                });
+                
+                document.getElementById('uploadForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const fileInput = document.getElementById('fileUpload');
+                    const textInput = document.getElementById('textToEncrypt').value;
+                    
+                    if (fileInput.files.length > 0) {
+                        simulateFileUpload(fileInput.files[0]);
+                    } else if (textInput) {
+                        simulateTextUpload(textInput);
+                    } else {
+                        addLogEntry('encryptLog', 'Please select a file or enter text to encrypt', 'warning');
+                    }
+                });
+                
+                document.getElementById('modalLoginForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const username = document.getElementById('modalUsername').value;
+                    const password = document.getElementById('modalPassword').value;
+                    handleLogin(username, password);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                    modal.hide();
+                });
+                
+                document.getElementById('modalRegisterForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const username = document.getElementById('regUsername').value;
+                    const password = document.getElementById('regPassword').value;
+                    const confirmPassword = document.getElementById('regConfirmPassword').value;
+                    
+                    if (password !== confirmPassword) {
+                        alert('Passwords do not match!');
+                        return;
+                    }
+                    
+                    if (!document.getElementById('regTerms').checked) {
+                        alert('You must agree to the terms and conditions');
+                        return;
+                    }
+                    
+                    demoUsers[username] = { password: password, isAdmin: false };
+                    addLogEntry('authLog', `User ${username} registered successfully`, 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                    modal.hide();
+                    showLoginModal();
+                });
+            });
+    
+            // Show login modal
+            function showLoginModal() {
+                const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+                modal.show();
+            }
+    
+            // Show register modal
+            function showRegisterModal() {
+                const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+                modal.show();
+            }
+    
+            // Show versions modal
+            function showFileVersions() {
+                const selectedFileId = document.querySelector('input[name="selectedFile"]:checked').value;
+                const file = files.find(f => f.id == selectedFileId);
+                
+                if (file) {
+                    const modal = new bootstrap.Modal(document.getElementById('versionsModal'));
+                    modal.show();
+                    addLogEntry('recoveryLog', `Viewing versions for file "${file.name}"`, 'info');
+                }
+            }
+    
+            // Handle login
+            function handleLogin(username, password) {
+                if (demoUsers[username] && demoUsers[username].password === password) {
+                    currentUser = {
+                        username: username,
+                        isAdmin: demoUsers[username].isAdmin
+                    };
+                    addLogEntry('authLog', `User ${username} logged in successfully`, 'success');
+                    
+                    // Enable file operations
+                    document.getElementById('fileUpload').disabled = false;
+                    document.getElementById('textToEncrypt').disabled = false;
+                    document.querySelector('#uploadForm button[type="submit"]').disabled = false;
+                    
+                    // Update file list
+                    updateFileList();
+                } else {
+                    addLogEntry('authLog', 'Invalid username or password', 'danger');
+                }
+            }
+    
+            // Simulate file upload
+            function simulateFileUpload(file) {
+                const progressBar = document.querySelector('#uploadProgress .progress-bar');
+                const uploadProgress = document.getElementById('uploadProgress');
+                
+                uploadProgress.style.display = 'block';
+                progressBar.style.width = '0%';
+                
+                // Simulate encryption progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress > 100) progress = 100;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    if (progress === 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            uploadProgress.style.display = 'none';
+                            
+                            // Add the file to the list
+                            const newFile = {
+                                id: files.length + 1,
+                                name: file.name,
+                                size: formatFileSize(file.size),
+                                date: new Date().toISOString().split('T')[0],
+                                encrypted: true
+                            };
+                            files.push(newFile);
+                            updateFileList();
+                            
+                            addLogEntry('encryptLog', `File "${file.name}" uploaded successfully`, 'success');
+                        }, 500);
+                    }
+                }, 200);
+            }
+    
+            // Simulate text upload
+            function simulateTextUpload(text) {
+                const progressBar = document.querySelector('#uploadProgress .progress-bar');
+                const uploadProgress = document.getElementById('uploadProgress');
+                
+                uploadProgress.style.display = 'block';
+                progressBar.style.width = '0%';
+                
+                // Simulate encryption progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 100) progress = 100;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    if (progress === 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            uploadProgress.style.display = 'none';
+                            
+                            // Add the file to the list
+                            const newFile = {
+                                id: files.length + 1,
+                                name: `text_note_${files.length + 1}.txt`,
+                                size: formatFileSize(text.length),
+                                date: new Date().toISOString().split('T')[0],
+                                encrypted: true
+                            };
+                            files.push(newFile);
+                            updateFileList();
+                            
+                            addLogEntry('encryptLog', `Text note encrypted and saved as "${newFile.name}"`, 'success');
+                            document.getElementById('textToEncrypt').value = '';
+                        }, 500);
+                    }
+                }, 150);
+            }
+    
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+            }
+    
+            // Update file list display
+            function updateFileList() {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                
+                if (!currentUser) {
+                    fileList.innerHTML = '<div class="list-group-item">Please login to view your files</div>';
+                    return;
+                }
+                
+                if (files.length === 0) {
+                    fileList.innerHTML = '<div class="list-group-item">No files uploaded yet</div>';
+                    return;
+                }
+                
+                files.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'list-group-item list-group-item-action';
+                    fileItem.innerHTML = `
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">${file.name}</h6>
+                                <small class="text-muted">${file.size} - ${file.date} - ${file.encrypted ? 'Encrypted' : 'Not Encrypted'}</small>
+                            </div>
+                            <div>
+                                <input type="radio" name="selectedFile" value="${file.id}" onchange="toggleFileActions()">
+                            </div>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+            }
+    
+            // Toggle file actions buttons
+            function toggleFileActions() {
+                const fileActions = document.getElementById('fileActions');
+                const selectedFile = document.querySelector('input[name="selectedFile"]:checked');
+                
+                if (selectedFile) {
+                    fileActions.classList.remove('d-none');
+                } else {
+                    fileActions.classList.add('d-none');
+                }
+            }
+    
+            // Download selected file
+            function downloadSelectedFile() {
+                const selectedFileId = document.querySelector('input[name="selectedFile"]:checked').value;
+                const file = files.find(f => f.id == selectedFileId);
+                
+                if (file) {
+                    addLogEntry('encryptLog', `Downloading file "${file.name}"`, 'success');
+                    // In a real app, this would trigger the actual download
+                    alert(`Simulating download of ${file.name}`);
+                }
+            }
+    
+            // Delete selected file
+            function deleteSelectedFile() {
+                const selectedFileId = document.querySelector('input[name="selectedFile"]:checked').value;
+                const fileIndex = files.findIndex(f => f.id == selectedFileId);
+                
+                if (fileIndex !== -1) {
+                    const fileName = files[fileIndex].name;
+                    files.splice(fileIndex, 1);
+                    updateFileList();
+                    document.getElementById('fileActions').classList.add('d-none');
+                    addLogEntry('encryptLog', `File "${fileName}" deleted`, 'success');
+                }
+            }
+    
+            // Simulate malware scan
+            function simulateMalwareScan() {
+                const malwareScanResult = document.getElementById('malwareScanResult');
+                malwareScanResult.innerHTML = '<div class="alert alert-info">Scanning files...</div>';
+                
+                setTimeout(() => {
+                    const isInfected = Math.random() > 0.8; // 20% chance of infection
+                    if (isInfected) {
+                        malwareScanResult.innerHTML = `
+                            <div class="alert alert-danger">
+                                <h5>Malware Detected!</h5>
+                                <p>File "suspicious.exe" contains known malware (Trojan.Generic.123456)</p>
+                                <button class="btn btn-sm btn-danger">Quarantine File</button>
+                            </div>
+                        `;
+                        addLogEntry('threatLog', 'Malware detected in file "suspicious.exe"', 'danger');
+                    } else {
+                        malwareScanResult.innerHTML = `
+                            <div class="alert alert-success">
+                                <h5>Scan Complete</h5>
+                                <p>No malware detected in any files</p>
+                            </div>
+                        `;
+                        addLogEntry('threatLog', 'Malware scan completed - no threats found', 'success');
+                    }
+                }, 2000);
+            }
+    
+            // Simulate suspicious activity
+            function simulateSuspiciousActivity() {
+                addLogEntry('threatLog', 'Multiple failed login attempts detected from IP 192.168.1.100', 'warning');
+                addLogEntry('threatLog', 'Brute force attack detected - IP 192.168.1.100 blocked', 'danger');
+                setTimeout(() => {
+                    addLogEntry('threatLog', 'Admin notified about suspicious activity', 'info');
+                }, 1000);
+            }
+    
+            // Run performance test
+            function runPerformanceTest() {
+                const performanceMetrics = document.getElementById('performanceMetrics');
+                performanceMetrics.innerHTML = `
+                    <div class="alert alert-info">
+                        <h5>Running Performance Tests...</h5>
+                        <div class="progress progress-thin mt-2">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                        </div>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    performanceMetrics.innerHTML = `
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">File Access Times</h5>
+                                <table class="table table-dark">
+                                    <thead>
+                                        <tr>
+                                            <th>Operation</th>
+                                            <th>Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>File Read (1MB)</td>
+                                            <td>12ms</td>
+                                        </tr>
+                                        <tr>
+                                            <td>File Write (1MB)</td>
+                                            <td>18ms</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Encryption (AES-256)</td>
+                                            <td>25ms</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Directory Listing</td>
+                                            <td>8ms</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="alert alert-success">
+                            Performance is 35% faster than traditional file systems
+                        </div>
+                    `;
+                    addLogEntry('performanceLog', 'Performance test completed - system operating optimally', 'success');
+                }, 3000);
+            }
+    
+            // Create backup
+            function createBackup() {
+                addLogEntry('recoveryLog', 'Creating system backup...', 'info');
+                
+                setTimeout(() => {
+                    addLogEntry('recoveryLog', 'Backup created successfully at ' + new Date().toLocaleString(), 'success');
+                }, 2000);
+            }
+    
+            // Restore system
+            function restoreSystem() {
+                addLogEntry('recoveryLog', 'Initiating system recovery...', 'warning');
+                
+                setTimeout(() => {
+                    addLogEntry('recoveryLog', 'Restoring from latest checkpoint...', 'info');
+                    
+                    setTimeout(() => {
+                        addLogEntry('recoveryLog', 'System recovery completed successfully', 'success');
+                    }, 2000);
+                }, 1000);
+            }
+    
+            // Workflow demonstration
+            function startWorkflowDemo() {
+                // Reset all steps
+                document.querySelectorAll('.workflow-step').forEach(step => {
+                    step.classList.remove('active', 'completed');
+                });
+                
+                currentStep = 0;
+                clearInterval(workflowInterval);
+                
+                workflowInterval = setInterval(() => {
+                    if (currentStep > 0) {
+                        const prevStep = document.getElementById(`step${currentStep}`);
+                        prevStep.classList.remove('active');
+                        prevStep.classList.add('completed');
+                    }
+                    
+                    currentStep++;
+                    
+                    if (currentStep > 7) {
+                        clearInterval(workflowInterval);
+                        return;
+                    }
+                    
+                    const currentStepEl = document.getElementById(`step${currentStep}`);
+                    currentStepEl.classList.add('active');
+                }, 1500);
+            }
+    
+            // Add entry to log
+            function addLogEntry(logId, message, type) {
+                const log = document.getElementById(logId);
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+                log.appendChild(entry);
+                log.scrollTop = log.scrollHeight;
+            }
+        </script>
+    </body>
+    </html>

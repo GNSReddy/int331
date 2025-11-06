@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure & Optimized File Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input {
+            padding: 10px;
+            width: 80%;
+            margin-top: 10px;
+        }
+        .log {
+            text-align: left;
+            margin-top: 20px;
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Secure & Optimized File Management System</h1>
+
+    <div class="container">
+        <h2>User Authentication</h2>
+        <input type="text" id="username" placeholder="Enter username">
+        <input type="password" id="password" placeholder="Enter password">
+        <button onclick="simulateLogin()">Login</button>
+        <p id="authStatus"></p>
+    </div>
+
+    <div class="container">
+        <h2>File Upload & Storage Simulation</h2>
+        <input type="file" id="fileInput">
+        <button onclick="simulateUpload()">Upload File</button>
+        <p id="uploadStatus"></p>
+    </div>
+
+    <div class="container">
+        <h2>Encryption & Security</h2>
+        <input type="text" id="textInput" placeholder="Enter text to encrypt">
+        <button onclick="simulateEncryption()">Encrypt</button>
+        <p id="encryptedText"></p>
+    </div>
+
+    <div class="container">
+        <h2>Threat Detection & System Recovery</h2>
+        <button onclick="simulateThreatDetection()">Run Threat Detection</button>
+        <button onclick="simulateRecovery()">Simulate System Recovery</button>
+        <div class="log" id="threatLog">No threats detected yet.</div>
+        <div class="log" id="recoveryLog">System status normal.</div>
+    </div>
+
+    <script>
+        function simulateLogin() {
+            let username = document.getElementById('username').value;
+            let password = document.getElementById('password').value;
+            if (username === "" || password === "") {
+                document.getElementById('authStatus').innerText = "Please enter valid credentials!";
+                return;
+            }
+            let hashedPassword = btoa(password); // Simulated hashing
+            document.getElementById('authStatus').innerText = `User: ${username} authenticated with hash: ${hashedPassword}`;
+        }
+
+        function simulateUpload() {
+            let fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                document.getElementById('uploadStatus').innerText = "No file selected!";
+                return;
+            }
+            let fileName = fileInput.files[0].name;
+            document.getElementById('uploadStatus').innerText = `File "${fileName}" uploaded securely!`;
+        }
+
+        function simulateEncryption() {
+            let textInput = document.getElementById('textInput').value;
+            if (textInput === "") {
+                document.getElementById('encryptedText').innerText = "Enter text to encrypt!";
+                return;
+            }
+            let encrypted = btoa(textInput); // Simulated encryption
+            document.getElementById('encryptedText').innerText = "Encrypted Data: " + encrypted;
+        }
+
+        function simulateThreatDetection() {
+            let threats = [
+                "Brute-force attack detected!",
+                "Unauthorized access attempt!",
+                "Malware scan initiated...",
+                "DDoS attack mitigated!"
+            ];
+            let logDiv = document.getElementById('threatLog');
+            logDiv.innerHTML = threats[Math.floor(Math.random() * threats.length)];
+        }
+
+        function simulateRecovery() {
+            let recoveries = [
+                "Checkpoint restored. System stable.",
+                "Journaling system recovering lost data...",
+                "Snapshot-based recovery complete!",
+                "Threat mitigated. System secure."
+            ];
+            let logDiv = document.getElementById('recoveryLog');
+            logDiv.innerHTML = recoveries[Math.floor(Math.random() * recoveries.length)];
+        }
+    </script>
+
+</body>
+</html>
